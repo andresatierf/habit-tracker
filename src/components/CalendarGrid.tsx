@@ -4,21 +4,18 @@ import { DayCell } from "./DayCell";
 interface CalendarGridProps {
   dateRange: { dates: Date[]; startDate: string; endDate: string };
   displayHabits: any[];
-  displaySubHabits: any[];
   getCompletionForDate: (
     date: string,
-    habitId?: Id<"habits">,
-    subHabitId?: Id<"subHabits">
+    habitId: Id<"habits">,
   ) => any;
   handleOpenDialog: (
     date: string,
-    habitId?: Id<"habits">,
-    subHabitId?: Id<"subHabits">
+    habitId: Id<"habits">,
   ) => void;
   toggleCompletion: (args: {
     date: string;
-    habitId?: Id<"habits">;
-    subHabitId?: Id<"subHabits">;
+    habitId: Id<"habits">;
+    completed?: boolean;
     metadata?: Record<string, any>;
   }) => Promise<void>;
   isCurrentMonth: (date: Date) => boolean;
@@ -28,7 +25,6 @@ interface CalendarGridProps {
 export function CalendarGrid({
   dateRange,
   displayHabits,
-  displaySubHabits,
   getCompletionForDate,
   handleOpenDialog,
   toggleCompletion,
@@ -60,7 +56,6 @@ export function CalendarGrid({
             isCurrentMonth={isCurrentMonth(date)}
             isToday={isToday(date)}
             displayHabits={displayHabits}
-            displaySubHabits={displaySubHabits}
             getCompletionForDate={getCompletionForDate}
             handleOpenDialog={handleOpenDialog}
             toggleCompletion={toggleCompletion}

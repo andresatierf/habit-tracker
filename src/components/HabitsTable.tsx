@@ -2,22 +2,14 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
 export function HabitsTable() {
-  const habits = useQuery(api.habits.getHabits) || [];
-  const subHabits = useQuery(api.habits.getAllSubHabits) || [];
+  const allHabits = useQuery(api.habits.getHabits) || [];
 
-  // Group sub-habits by habit
-  const habitSubHabitsMap = subHabits.reduce((acc, subHabit) => {
-    if (!acc[subHabit.habitId]) {
-      acc[subHabit.habitId] = [];
-    }
-    acc[subHabit.habitId].push(subHabit);
-    return acc;
-  }, {} as Record<string, any[]>);
+  const topLevelHabits = allHabits.filter(habit => habit.parentId === undefined);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900">Habits & Sub-habits Table</h2>
+        <h2 className="text-xl font-semibold text-gray-900">Habits Table</h2>
       </div>
       
       <div className="overflow-x-auto">
@@ -42,14 +34,14 @@ export function HabitsTable() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {habits.length === 0 ? (
+            {topLevelHabits.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
                   No habits found. Create your first habit to get started!
                 </td>
               </tr>
             ) : (
-              habits.map((habit) => (
+              topLevelHabits.map((habit) => (
                 <>
                   {/* Main Habit Row */}
                   <tr key={habit._id} className="hover:bg-gray-50">
@@ -79,7 +71,7 @@ export function HabitsTable() {
                   </tr>
                   
                   {/* Sub-habits Rows */}
-                  {habitSubHabitsMap[habit._id]?.map((subHabit) => (
+                  {allHabits.filter(sh => sh.parentId === habit._id).map((subHabit: any) => (
                     <tr key={subHabit._id} className="hover:bg-gray-50 bg-gray-25">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -114,11 +106,11 @@ export function HabitsTable() {
       </div>
       
       {/* Summary */}
-      {habits.length > 0 && (
+      {allHabits.length > 0 && (
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
           <div className="flex justify-between text-sm text-gray-600">
-            <span>Total Habits: {habits.length}</span>
-            <span>Total Sub-habits: {subHabits.length}</span>
+            <span>Total Habits: {topLevelHabits.length}</span>
+            <span>Total Sub-habits: {allHabits.filter(h => h.parentId !== undefined).length}</span>
           </div>
         </div>
       )}

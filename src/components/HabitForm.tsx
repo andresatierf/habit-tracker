@@ -14,8 +14,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../convex/_generated/api";
 
+import { Id } from "../../convex/_generated/dataModel";
+
 interface HabitFormProps {
   habit?: any;
+  parentId?: Id<"habits">;
   onClose: () => void;
 }
 
@@ -68,7 +71,7 @@ type MetadataField = {
   options?: string[];
 };
 
-export function HabitForm({ habit, onClose }: HabitFormProps) {
+export function HabitForm({ habit, parentId, onClose }: HabitFormProps) {
   const [name, setName] = useState(habit?.name || "");
   const [color, setColor] = useState(habit?.color || COLORS[0]);
   const [icon, setIcon] = useState(habit?.icon || ICONS[0]);
@@ -79,6 +82,8 @@ export function HabitForm({ habit, onClose }: HabitFormProps) {
 
   const createHabit = useMutation(api.habits.createHabit);
   const updateHabit = useMutation(api.habits.updateHabit);
+  const createSubHabit = useMutation(api.habits.createSubHabit);
+  const updateSubHabit = useMutation(api.habits.updateSubHabit);
 
   const handleAddMetadataField = () => {
     setMetadataFields([
@@ -107,7 +112,11 @@ export function HabitForm({ habit, onClose }: HabitFormProps) {
     setMetadataFields(newFields);
   };
 
-  const handleMetadataFieldOptionsChange = (index: number, optionIndex: number, value: string) => {
+  const handleMetadataFieldOptionsChange = (
+    index: number,
+    optionIndex: number,
+    value: string
+  ) => {
     const newFields = [...metadataFields];
     if (newFields[index].options) {
       newFields[index].options![optionIndex] = value;
@@ -145,26 +154,50 @@ export function HabitForm({ habit, onClose }: HabitFormProps) {
     setIsSubmitting(true);
     try {
       if (habit) {
-        await updateHabit({
-          habitId: habit._id,
-          name: name.trim(),
-          color,
-          icon,
-          metadata: metadataFields,
-        });
-        toast.success("Habit updated successfully!");
+        // Update existing habit or sub-habit
+        if (parentId) {
+          await updateSubHabit({
+            subHabitId: habit._id,
+            name: name.trim(),
+            color,
+            icon,
+            metadata: metadataFields,
+          });
+          toast.success("Sub-habit updated successfully!");
+        } else {
+          await updateHabit({
+            habitId: habit._id,
+            name: name.trim(),
+            color,
+            icon,
+            metadata: metadataFields,
+          });
+          toast.success("Habit updated successfully!");
+        }
       } else {
-        await createHabit({
-          name: name.trim(),
-          color,
-          icon,
-          metadata: metadataFields,
-        });
-        toast.success("Habit created successfully!");
+        // Create new habit or sub-habit
+        if (parentId) {
+          await createSubHabit({
+            habitId: parentId,
+            name: name.trim(),
+            color,
+            icon,
+            metadata: metadataFields,
+          });
+          toast.success("Sub-habit created successfully!");
+        } else {
+          await createHabit({
+            name: name.trim(),
+            color,
+            icon,
+            metadata: metadataFields,
+          });
+          toast.success("Habit created successfully!");
+        }
       }
       onClose();
     } catch (error) {
-      toast.error("Failed to save habit");
+      toast.error("Failed to save " + (parentId ? "sub-habit" : "habit"));
     } finally {
       setIsSubmitting(false);
     }

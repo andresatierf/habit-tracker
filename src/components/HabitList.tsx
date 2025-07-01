@@ -1,21 +1,23 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { SubHabitForm } from "./SubHabitForm";
 import { Id } from "../../convex/_generated/dataModel";
+import { HabitForm } from "./HabitForm";
 
 interface HabitListProps {
-  habits: any[];
   onEditHabit: (habit: any) => void;
 }
 
-export function HabitList({ habits, onEditHabit }: HabitListProps) {
-  const [expandedHabits, setExpandedHabits] = useState<Set<Id<"habits">>>(new Set());
-  const [showSubHabitForm, setShowSubHabitForm] = useState<Id<"habits"> | null>(null);
-  const [editingSubHabit, setEditingSubHabit] = useState<any>(null);
+export function HabitList({ onEditHabit }: HabitListProps) {
+  const allHabits = useQuery(api.habits.getHabits) || [];
+
+  const [expandedHabits, setExpandedHabits] = useState<Set<Id<"habits">>>(
+    new Set()
+  );
+  const [showHabitForm, setShowHabitForm] = useState<Id<"habits"> | null>(null);
+  const [editingHabit, setEditingHabit] = useState<any>(null);
 
   const deleteHabit = useMutation(api.habits.deleteHabit);
-  const deleteSubHabit = useMutation(api.habits.deleteSubHabit);
 
   const toggleExpanded = (habitId: Id<"habits">) => {
     const newExpanded = new Set(expandedHabits);
@@ -28,35 +30,35 @@ export function HabitList({ habits, onEditHabit }: HabitListProps) {
   };
 
   const handleDeleteHabit = async (habitId: Id<"habits">) => {
-    if (confirm("Are you sure you want to delete this habit? This will also delete all sub-habits.")) {
+    if (
+      confirm(
+        "Are you sure you want to delete this habit? This will also delete all sub-habits."
+      )
+    ) {
       await deleteHabit({ habitId });
     }
   };
 
-  const handleDeleteSubHabit = async (subHabitId: Id<"subHabits">) => {
-    if (confirm("Are you sure you want to delete this sub-habit?")) {
-      await deleteSubHabit({ subHabitId });
-    }
-  };
-
   const handleEditSubHabit = (subHabit: any) => {
-    setEditingSubHabit(subHabit);
-    setShowSubHabitForm(subHabit.habitId);
+    setEditingHabit(subHabit);
+    setShowHabitForm(subHabit.parentId);
   };
 
-  const handleCloseSubHabitForm = () => {
-    setShowSubHabitForm(null);
-    setEditingSubHabit(null);
+  const handleCloseHabitForm = () => {
+    setShowHabitForm(null);
+    setEditingHabit(null);
   };
 
   return (
     <div className="space-y-4">
-      {habits.length === 0 ? (
+      {allHabits.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No habits yet. Create your first habit to get started!</p>
+          <p className="text-gray-500 text-lg">
+            No habits yet. Create your first habit to get started!
+          </p>
         </div>
       ) : (
-        habits.map((habit) => (
+        allHabits.map((habit) => (
           <HabitCard
             key={habit._id}
             habit={habit}
@@ -64,19 +66,19 @@ export function HabitList({ habits, onEditHabit }: HabitListProps) {
             onToggleExpanded={() => toggleExpanded(habit._id)}
             onEdit={() => onEditHabit(habit)}
             onDelete={() => handleDeleteHabit(habit._id)}
-            onAddSubHabit={() => setShowSubHabitForm(habit._id)}
+            onAddSubHabit={() => setShowHabitForm(habit._id)}
             onEditSubHabit={handleEditSubHabit}
-            onDeleteSubHabit={handleDeleteSubHabit}
+            onDeleteSubHabit={handleDeleteHabit}
           />
         ))
       )}
 
-      {/* Sub-habit Form Modal */}
-      {showSubHabitForm && (
-        <SubHabitForm
-          habitId={showSubHabitForm}
-          subHabit={editingSubHabit}
-          onClose={handleCloseSubHabitForm}
+      {/* Habit Form Modal (for sub-habits) */}
+      {showHabitForm && (
+        <HabitForm
+          habit={editingHabit}
+          parentId={showHabitForm}
+          onClose={handleCloseHabitForm}
         />
       )}
     </div>
@@ -91,7 +93,7 @@ interface HabitCardProps {
   onDelete: () => void;
   onAddSubHabit: () => void;
   onEditSubHabit: (subHabit: any) => void;
-  onDeleteSubHabit: (subHabitId: Id<"subHabits">) => void;
+  onDeleteSubHabit: (subHabitId: Id<"habits">) => void;
 }
 
 function HabitCard({
@@ -104,7 +106,8 @@ function HabitCard({
   onEditSubHabit,
   onDeleteSubHabit,
 }: HabitCardProps) {
-  const subHabits = useQuery(api.habits.getSubHabits, { habitId: habit._id }) || [];
+  const subHabits =
+    useQuery(api.habits.getSubHabits, { parentId: habit._id }) || [];
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -116,9 +119,13 @@ function HabitCard({
               style={{ backgroundColor: habit.color }}
             />
             <span className="text-2xl">{habit.icon}</span>
-            <h3 className="text-lg font-semibold text-gray-900">{habit.name}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {habit.name}
+            </h3>
             {subHabits.length > 0 && (
-              <span className="text-sm text-gray-500">({subHabits.length} sub-habits)</span>
+              <span className="text-sm text-gray-500">
+                ({subHabits.length} sub-habits)
+              </span>
             )}
           </div>
           <div className="flex items-center gap-2">
@@ -155,7 +162,10 @@ function HabitCard({
         {isExpanded && subHabits.length > 0 && (
           <div className="mt-4 pl-8 space-y-2">
             {subHabits.map((subHabit) => (
-              <div key={subHabit._id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+              <div
+                key={subHabit._id}
+                className="flex items-center justify-between p-2 bg-gray-50 rounded"
+              >
                 <div className="flex items-center gap-3">
                   <div
                     className="w-3 h-3 rounded-full"

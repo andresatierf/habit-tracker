@@ -7,21 +7,18 @@ interface DayCellProps {
   isCurrentMonth: boolean;
   isToday: boolean;
   displayHabits: any[];
-  displaySubHabits: any[];
   getCompletionForDate: (
     date: string,
-    habitId?: Id<"habits">,
-    subHabitId?: Id<"subHabits">
+    habitId: Id<"habits">,
   ) => any;
   handleOpenDialog: (
     date: string,
-    habitId?: Id<"habits">,
-    subHabitId?: Id<"subHabits">
+    habitId: Id<"habits">,
   ) => void;
   toggleCompletion: (args: {
     date: string;
-    habitId?: Id<"habits">;
-    subHabitId?: Id<"subHabits">;
+    habitId: Id<"habits">;
+    completed?: boolean;
     metadata?: Record<string, any>;
   }) => Promise<void>;
 }
@@ -32,7 +29,6 @@ export function DayCell({
   isCurrentMonth,
   isToday,
   displayHabits,
-  displaySubHabits,
   getCompletionForDate,
   handleOpenDialog,
   toggleCompletion,
@@ -59,53 +55,47 @@ export function DayCell({
           const isCompleted = completion?.completed || false;
 
           return (
-            <HabitCompletionButton
-              key={`habit-${habit._id}`}
-              id={habit._id}
-              name={habit.name}
-              icon={habit.icon}
-              color={habit.color}
-              isCompleted={isCompleted}
-              onClick={async (id) => {
-                if (isCompleted) {
-                  await toggleCompletion({ date: dateString, habitId: id });
-                } else {
-                  handleOpenDialog(dateString, id);
-                }
-              }}
-            />
-          );
-        })}
-
-        {/* Sub-habits */}
-        {displaySubHabits.map((subHabit) => {
-          const completion = getCompletionForDate(
-            dateString,
-            undefined,
-            subHabit._id
-          );
-          const isCompleted = completion?.completed || false;
-
-          return (
-            <HabitCompletionButton
-              key={`subhabit-${subHabit._id}`}
-              id={subHabit._id}
-              name={subHabit.name}
-              icon={subHabit.icon}
-              color={subHabit.color}
-              isCompleted={isCompleted}
-              onClick={async (id) => {
-                if (isCompleted) {
-                  await toggleCompletion({
-                    date: dateString,
-                    subHabitId: id,
-                    completed: false,
-                  });
-                } else {
-                  handleOpenDialog(dateString, undefined, id);
-                }
-              }}
-            />
+            <div key={`habit-${habit._id}`}>
+              <HabitCompletionButton
+                id={habit._id}
+                name={habit.name}
+                icon={habit.icon}
+                color={habit.color}
+                isCompleted={isCompleted}
+                onClick={async (id) => {
+                  if (isCompleted) {
+                    await toggleCompletion({ date: dateString, habitId: id, completed: false, metadata: completion?.metadata });
+                  } else {
+                    handleOpenDialog(dateString, id);
+                  }
+                }}
+              />
+              {habit.subHabits && habit.subHabits.length > 0 && (
+                <div className="ml-4 mt-1 space-y-1">
+                  {habit.subHabits.map((subHabit: any) => {
+                    const subCompletion = getCompletionForDate(dateString, subHabit._id);
+                    const isSubCompleted = subCompletion?.completed || false;
+                    return (
+                      <HabitCompletionButton
+                        key={`subhabit-${subHabit._id}`}
+                        id={subHabit._id}
+                        name={subHabit.name}
+                        icon={subHabit.icon}
+                        color={subHabit.color}
+                        isCompleted={isSubCompleted}
+                        onClick={async (id) => {
+                          if (isSubCompleted) {
+                            await toggleCompletion({ date: dateString, habitId: id, completed: false, metadata: subCompletion?.metadata });
+                          } else {
+                            handleOpenDialog(dateString, id);
+                          }
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
       </div>

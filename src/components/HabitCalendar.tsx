@@ -8,23 +8,21 @@ import { MetadataDialog } from "./MetadataDialog";
 
 interface HabitCalendarProps {
   selectedHabits: Id<"habits">[];
-  selectedSubHabits: Id<"subHabits">[];
 }
 
 type MetadataField = {
   name: string;
-  type: "text" | "number" | "boolean" | "date";
+  type: "text" | "number" | "boolean" | "date" | "enum";
+  options?: string[];
 };
 
 export function HabitCalendar({
   selectedHabits,
-  selectedSubHabits,
 }: HabitCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedCompletion, setSelectedCompletion] = useState<any>(null);
 
-  const habits = useQuery(api.habits.getHabits) || [];
-  const subHabits = useQuery(api.habits.getAllSubHabits) || [];
+  const allHabits = useQuery(api.habits.getHabits) || [];
 
   const toggleCompletion = useMutation(api.completions.toggleCompletion);
 
@@ -34,7 +32,7 @@ export function HabitCalendar({
     await toggleCompletion({
       date: selectedCompletion.date,
       habitId: selectedCompletion.habitId,
-      subHabitId: selectedCompletion.subHabitId,
+      completed: selectedCompletion.completed,
       metadata: metadata,
     });
   };
@@ -71,54 +69,43 @@ export function HabitCalendar({
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
       habitIds: selectedHabits.length > 0 ? selectedHabits : undefined,
-      subHabitIds: selectedSubHabits.length > 0 ? selectedSubHabits : undefined,
     }) || [];
 
   // Filter habits and sub-habits based on selection
-  const displayHabits =
-    selectedHabits.length > 0
-      ? habits.filter((h) => selectedHabits.includes(h._id))
-      : habits;
+  const displayHabits = useMemo(() => {
+    const filteredHabits = selectedHabits.length > 0
+      ? allHabits.filter((h) => selectedHabits.includes(h._id) && h.parentId === null)
+      : allHabits.filter(h => h.parentId === null);
 
-  const displaySubHabits =
-    selectedSubHabits.length > 0
-      ? subHabits.filter((sh) => selectedSubHabits.includes(sh._id))
-      : subHabits.filter(
-          (sh) =>
-            selectedHabits.length === 0 || selectedHabits.includes(sh.habitId),
-        );
+    return filteredHabits.map(habit => ({
+      ...habit,
+      subHabits: allHabits.filter(sh => sh.parentId === habit._id && sh.isActive)
+    }));
+  }, [selectedHabits, allHabits]);
 
   const getCompletionForDate = (
     date: string,
-    habitId?: Id<"habits">,
-    subHabitId?: Id<"subHabits">,
+    habitId: Id<"habits">,
   ) => {
     return completions.find(
       (c) =>
         c.date === date &&
-        (habitId ? c.habitId === habitId : c.subHabitId === subHabitId),
+        c.habitId === habitId
     );
   };
 
   const handleOpenDialog = (
     date: string,
-    habitId?: Id<"habits">,
-    subHabitId?: Id<"subHabits">,
+    habitId: Id<"habits">,
   ) => {
-    const completion = getCompletionForDate(date, habitId, subHabitId);
+    const completion = getCompletionForDate(date, habitId);
+    const habit = allHabits.find(h => h._id === habitId);
+
     let initialMetadataSchema: MetadataField[] = [];
     let initialMetadataValues: Record<string, any> = {};
 
-    if (habitId) {
-      const habit = habits.find((h) => h._id === habitId);
-      if (habit?.metadata) {
-        initialMetadataSchema = habit.metadata;
-      }
-    } else if (subHabitId) {
-      const subHabit = subHabits.find((sh) => sh._id === subHabitId);
-      if (subHabit?.metadata) {
-        initialMetadataSchema = subHabit.metadata;
-      }
+    if (habit?.metadata) {
+      initialMetadataSchema = habit.metadata;
     }
 
     if (completion?.metadata) {
@@ -136,7 +123,6 @@ export function HabitCalendar({
     setSelectedCompletion({
       date,
       habitId,
-      subHabitId,
       completed: completion?.completed || false,
       metadataSchema: initialMetadataSchema,
       existingMetadata: initialMetadataValues,
@@ -170,18 +156,19 @@ export function HabitCalendar({
       <CalendarGrid
         dateRange={dateRange}
         displayHabits={displayHabits}
-        displaySubHabits={displaySubHabits}
         getCompletionForDate={getCompletionForDate}
         handleOpenDialog={handleOpenDialog}
         toggleCompletion={toggleCompletion}
         isCurrentMonth={isCurrentMonth}
         isToday={isToday}
       />
-      <MetadataDialog
-        selectedCompletion={selectedCompletion}
-        setSelectedCompletion={setSelectedCompletion}
-        onSave={handleSaveMetadata}
-      />
+      {selectedCompletion && (
+        <MetadataDialog
+          selectedCompletion={selectedCompletion}
+          setSelectedCompletion={setSelectedCompletion}
+          onSave={handleSaveMetadata}
+        />
+      )}
     </div>
   );
 }

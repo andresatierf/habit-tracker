@@ -1,23 +1,23 @@
-import { useState } from "react";
 import { useQuery } from "convex/react";
+import { useState } from "react";
 import { api } from "../../convex/_generated/api";
-import { HabitList } from "./HabitList";
+import { Id } from "../../convex/_generated/dataModel";
+import { HeatmapCalendar } from "././HeatmapCalendar";
+import { FilterPanel } from "./FilterPanel";
 import { HabitCalendar } from "./HabitCalendar";
 import { HabitForm } from "./HabitForm";
-import { FilterPanel } from "./FilterPanel";
+import { HabitList } from "./HabitList";
 import { HabitsTable } from "./HabitsTable";
-import { HeatmapCalendar } from "./HeatmapCalendar";
-import { Id } from "../../convex/_generated/dataModel";
 
 export function HabitTracker() {
   const [showForm, setShowForm] = useState(false);
   const [editingHabit, setEditingHabit] = useState<any>(null);
   const [selectedHabits, setSelectedHabits] = useState<Id<"habits">[]>([]);
-  const [selectedSubHabits, setSelectedSubHabits] = useState<Id<"subHabits">[]>([]);
-  const [viewMode, setViewMode] = useState<"calendar" | "list" | "table" | "heatmap">("calendar");
+  const [viewMode, setViewMode] = useState<
+    "calendar" | "list" | "table" | "heatmap"
+  >("calendar");
 
-  const habits = useQuery(api.habits.getHabits) || [];
-  const subHabits = useQuery(api.habits.getAllSubHabits) || [];
+  const allHabits = useQuery(api.habits.getHabits) || [];
 
   const handleEditHabit = (habit: any) => {
     setEditingHabit(habit);
@@ -29,7 +29,10 @@ export function HabitTracker() {
     setEditingHabit(null);
   };
 
-  const getViewModeButton = (mode: "calendar" | "list" | "table" | "heatmap", label: string) => (
+  const getViewModeButton = (
+    mode: "calendar" | "list" | "table" | "heatmap",
+    label: string
+  ) => (
     <button
       onClick={() => setViewMode(mode)}
       className={`px-4 py-2 rounded-lg transition-colors ${
@@ -64,46 +67,27 @@ export function HabitTracker() {
       {/* Filter Panel - show for calendar and heatmap views */}
       {(viewMode === "calendar" || viewMode === "heatmap") && (
         <FilterPanel
-          habits={habits}
-          subHabits={subHabits}
+          allHabits={allHabits}
           selectedHabits={selectedHabits}
-          selectedSubHabits={selectedSubHabits}
           onHabitsChange={setSelectedHabits}
-          onSubHabitsChange={setSelectedSubHabits}
         />
       )}
 
       {/* Main Content */}
       {viewMode === "calendar" && (
-        <HabitCalendar
-          selectedHabits={selectedHabits}
-          selectedSubHabits={selectedSubHabits}
-        />
+        <HabitCalendar selectedHabits={selectedHabits} />
       )}
-      
+
       {viewMode === "heatmap" && (
-        <HeatmapCalendar
-          selectedHabits={selectedHabits}
-          selectedSubHabits={selectedSubHabits}
-        />
+        <HeatmapCalendar selectedHabits={selectedHabits} />
       )}
-      
-      {viewMode === "list" && (
-        <HabitList
-          habits={habits}
-          onEditHabit={handleEditHabit}
-        />
-      )}
-      
+
+      {viewMode === "list" && <HabitList onEditHabit={handleEditHabit} />}
+
       {viewMode === "table" && <HabitsTable />}
 
       {/* Habit Form Modal */}
-      {showForm && (
-        <HabitForm
-          habit={editingHabit}
-          onClose={handleCloseForm}
-        />
-      )}
+      {showForm && <HabitForm habit={editingHabit} onClose={handleCloseForm} />}
     </div>
   );
 }

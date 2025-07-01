@@ -8,7 +8,6 @@ export const getCompletions = query({
     startDate: v.string(),
     endDate: v.string(),
     habitIds: v.optional(v.array(v.id("habits"))),
-    subHabitIds: v.optional(v.array(v.id("subHabits"))),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -29,13 +28,6 @@ export const getCompletions = query({
     if (args.habitIds && args.habitIds.length > 0) {
       completions = completions.filter(
         (c) => c.habitId && args.habitIds!.includes(c.habitId)
-      );
-    }
-
-    // Filter by specific sub-habits if provided
-    if (args.subHabitIds && args.subHabitIds.length > 0) {
-      completions = completions.filter(
-        (c) => c.subHabitId && args.subHabitIds!.includes(c.subHabitId)
       );
     }
 
@@ -63,42 +55,31 @@ export const getCompletionsForDate = query({
 export const toggleCompletion = mutation({
   args: {
     date: v.string(),
-    habitId: v.optional(v.id("habits")),
-    subHabitId: v.optional(v.id("subHabits")),
+    habitId: v.id("habits"),
+    completed: v.optional(v.boolean()),
     metadata: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
-    if (!args.habitId && !args.subHabitId) {
-      throw new Error("Either habitId or subHabitId must be provided");
-    }
-
     // Find existing completion
     let existingCompletion;
-    if (args.habitId) {
-      existingCompletion = await ctx.db
-        .query("completions")
-        .withIndex("by_habit_and_date", (q) =>
-          q.eq("habitId", args.habitId!).eq("date", args.date)
-        )
-        .filter((q) => q.eq(q.field("userId"), userId))
-        .first();
-    } else if (args.subHabitId) {
-      existingCompletion = await ctx.db
-        .query("completions")
-        .withIndex("by_subhabit_and_date", (q) =>
-          q.eq("subHabitId", args.subHabitId!).eq("date", args.date)
-        )
-        .filter((q) => q.eq(q.field("userId"), userId))
-        .first();
-    }
+    existingCompletion = await ctx.db
+      .query("completions")
+      .withIndex("by_habit_and_date", (q) =>
+        q.eq("habitId", args.habitId!).eq("date", args.date)
+      )
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .first();
 
     if (existingCompletion) {
       // Toggle existing completion
       const patchData: Record<string, any> = {
-        completed: !existingCompletion.completed,
+        completed:
+          args.completed !== undefined
+            ? args.completed
+            : !existingCompletion.completed,
       };
       if (args.metadata !== undefined) {
         patchData.metadata = args.metadata;
@@ -109,9 +90,8 @@ export const toggleCompletion = mutation({
       await ctx.db.insert("completions", {
         userId,
         habitId: args.habitId,
-        subHabitId: args.subHabitId,
         date: args.date,
-        completed: true,
+        completed: args.completed !== undefined ? args.completed : true,
         metadata: args.metadata,
       });
     }
@@ -124,7 +104,6 @@ export const getCompletionStats = query({
     startDate: v.string(),
     endDate: v.string(),
     habitId: v.optional(v.id("habits")),
-    subHabitId: v.optional(v.id("subHabits")),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -134,21 +113,7 @@ export const getCompletionStats = query({
     if (args.habitId) {
       completions = await ctx.db
         .query("completions")
-        .withIndex("by_habit_and_date", (q) => q.eq("habitId", args.habitId))
-        .filter((q) =>
-          q.and(
-            q.eq(q.field("userId"), userId),
-            q.gte(q.field("date"), args.startDate),
-            q.lte(q.field("date"), args.endDate)
-          )
-        )
-        .collect();
-    } else if (args.subHabitId) {
-      completions = await ctx.db
-        .query("completions")
-        .withIndex("by_subhabit_and_date", (q) =>
-          q.eq("subHabitId", args.subHabitId)
-        )
+        .withIndex("by_habit_and_date", (q) => q.eq("habitId", args.habitId!))
         .filter((q) =>
           q.and(
             q.eq(q.field("userId"), userId),

@@ -2,12 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Id } from "../../convex/_generated/dataModel";
 
 interface HabitCompletionButtonProps {
-  id: Id<"habits"> | Id<"subHabits">;
+  id: Id<"habits">;
   name: string;
   icon: string;
   color: string;
   isCompleted: boolean;
-  onClick: (id: Id<"habits"> | Id<"subHabits">) => void;
+  onClick: (id: Id<"habits">) => void;
 }
 
 export function HabitCompletionButton({

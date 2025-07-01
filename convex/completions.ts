@@ -1,6 +1,6 @@
-import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { v } from "convex/values";
+import { mutation, query } from "./_generated/server";
 
 // Get completions for a specific date range
 export const getCompletions = query({
@@ -17,7 +17,7 @@ export const getCompletions = query({
     let completions = await ctx.db
       .query("completions")
       .withIndex("by_user", (q) => q.eq("userId", userId))
-      .filter((q) => 
+      .filter((q) =>
         q.and(
           q.gte(q.field("date"), args.startDate),
           q.lte(q.field("date"), args.endDate)
@@ -27,15 +27,15 @@ export const getCompletions = query({
 
     // Filter by specific habits if provided
     if (args.habitIds && args.habitIds.length > 0) {
-      completions = completions.filter(c => 
-        c.habitId && args.habitIds!.includes(c.habitId)
+      completions = completions.filter(
+        (c) => c.habitId && args.habitIds!.includes(c.habitId)
       );
     }
 
     // Filter by specific sub-habits if provided
     if (args.subHabitIds && args.subHabitIds.length > 0) {
-      completions = completions.filter(c => 
-        c.subHabitId && args.subHabitIds!.includes(c.subHabitId)
+      completions = completions.filter(
+        (c) => c.subHabitId && args.subHabitIds!.includes(c.subHabitId)
       );
     }
 
@@ -52,7 +52,7 @@ export const getCompletionsForDate = query({
 
     return await ctx.db
       .query("completions")
-      .withIndex("by_user_and_date", (q) => 
+      .withIndex("by_user_and_date", (q) =>
         q.eq("userId", userId).eq("date", args.date)
       )
       .collect();
@@ -65,6 +65,7 @@ export const toggleCompletion = mutation({
     date: v.string(),
     habitId: v.optional(v.id("habits")),
     subHabitId: v.optional(v.id("subHabits")),
+    metadata: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -79,16 +80,16 @@ export const toggleCompletion = mutation({
     if (args.habitId) {
       existingCompletion = await ctx.db
         .query("completions")
-        .withIndex("by_habit_and_date", (q) => 
-          q.eq("habitId", args.habitId).eq("date", args.date)
+        .withIndex("by_habit_and_date", (q) =>
+          q.eq("habitId", args.habitId!).eq("date", args.date)
         )
         .filter((q) => q.eq(q.field("userId"), userId))
         .first();
     } else if (args.subHabitId) {
       existingCompletion = await ctx.db
         .query("completions")
-        .withIndex("by_subhabit_and_date", (q) => 
-          q.eq("subHabitId", args.subHabitId).eq("date", args.date)
+        .withIndex("by_subhabit_and_date", (q) =>
+          q.eq("subHabitId", args.subHabitId!).eq("date", args.date)
         )
         .filter((q) => q.eq(q.field("userId"), userId))
         .first();
@@ -98,6 +99,7 @@ export const toggleCompletion = mutation({
       // Toggle existing completion
       await ctx.db.patch(existingCompletion._id, {
         completed: !existingCompletion.completed,
+        metadata: args.metadata,
       });
     } else {
       // Create new completion
@@ -107,6 +109,7 @@ export const toggleCompletion = mutation({
         subHabitId: args.subHabitId,
         date: args.date,
         completed: true,
+        metadata: args.metadata,
       });
     }
   },
@@ -129,7 +132,7 @@ export const getCompletionStats = query({
       completions = await ctx.db
         .query("completions")
         .withIndex("by_habit_and_date", (q) => q.eq("habitId", args.habitId))
-        .filter((q) => 
+        .filter((q) =>
           q.and(
             q.eq(q.field("userId"), userId),
             q.gte(q.field("date"), args.startDate),
@@ -140,8 +143,10 @@ export const getCompletionStats = query({
     } else if (args.subHabitId) {
       completions = await ctx.db
         .query("completions")
-        .withIndex("by_subhabit_and_date", (q) => q.eq("subHabitId", args.subHabitId))
-        .filter((q) => 
+        .withIndex("by_subhabit_and_date", (q) =>
+          q.eq("subHabitId", args.subHabitId)
+        )
+        .filter((q) =>
           q.and(
             q.eq(q.field("userId"), userId),
             q.gte(q.field("date"), args.startDate),
@@ -153,7 +158,7 @@ export const getCompletionStats = query({
       completions = await ctx.db
         .query("completions")
         .withIndex("by_user_and_date", (q) => q.eq("userId", userId))
-        .filter((q) => 
+        .filter((q) =>
           q.and(
             q.gte(q.field("date"), args.startDate),
             q.lte(q.field("date"), args.endDate)
@@ -162,7 +167,7 @@ export const getCompletionStats = query({
         .collect();
     }
 
-    const completed = completions.filter(c => c.completed).length;
+    const completed = completions.filter((c) => c.completed).length;
     const total = completions.length;
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 

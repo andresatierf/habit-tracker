@@ -59,6 +59,10 @@ export const createHabit = mutation({
     name: v.string(),
     color: v.string(),
     icon: v.string(),
+    metadata: v.optional(v.array(v.object({
+      name: v.string(),
+      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date")),
+    }))),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -70,6 +74,7 @@ export const createHabit = mutation({
       color: args.color,
       icon: args.icon,
       isActive: true,
+      metadata: args.metadata,
     });
   },
 });
@@ -81,6 +86,10 @@ export const createSubHabit = mutation({
     name: v.string(),
     color: v.string(),
     icon: v.string(),
+    metadata: v.optional(v.array(v.object({
+      name: v.string(),
+      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date")),
+    }))),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -93,6 +102,7 @@ export const createSubHabit = mutation({
       color: args.color,
       icon: args.icon,
       isActive: true,
+      metadata: args.metadata,
     });
   },
 });
@@ -104,6 +114,10 @@ export const updateHabit = mutation({
     name: v.string(),
     color: v.string(),
     icon: v.string(),
+    metadata: v.optional(v.array(v.object({
+      name: v.string(),
+      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date")),
+    }))),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -118,6 +132,7 @@ export const updateHabit = mutation({
       name: args.name,
       color: args.color,
       icon: args.icon,
+      metadata: args.metadata,
     });
   },
 });
@@ -129,6 +144,10 @@ export const updateSubHabit = mutation({
     name: v.string(),
     color: v.string(),
     icon: v.string(),
+    metadata: v.optional(v.array(v.object({
+      name: v.string(),
+      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date")),
+    }))),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -143,6 +162,7 @@ export const updateSubHabit = mutation({
       name: args.name,
       color: args.color,
       icon: args.icon,
+      metadata: args.metadata,
     });
   },
 });

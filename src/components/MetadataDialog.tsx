@@ -9,6 +9,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useForm } from "@tanstack/react-form";
 import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
 
@@ -20,7 +27,8 @@ interface MetadataDialogProps {
 
 type MetadataField = {
   name: string;
-  type: "text" | "number" | "boolean" | "date";
+  type: "text" | "number" | "boolean" | "date" | "enum";
+  options?: string[];
 };
 
 export function MetadataDialog({
@@ -61,7 +69,7 @@ export function MetadataDialog({
         }
         return undefined;
       },
-    [],
+    []
   );
 
   return (
@@ -144,6 +152,23 @@ export function MetadataDialog({
                             onBlur={handleBlur}
                           />
                         )}
+                        {fieldSchema.type === "enum" && (
+                          <Select
+                            value={value || ""}
+                            onValueChange={handleChange}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select an option" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {fieldSchema.options?.map((option) => (
+                                <SelectItem key={option} value={option}>
+                                  {option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
                         {errors && (
                           <p className="text-red-500 text-sm mt-1">
                             {errors.join(", ")}
@@ -153,7 +178,7 @@ export function MetadataDialog({
                     );
                   }}
                 </form.Field>
-              ),
+              )
             )}
           </div>
           <DialogFooter>

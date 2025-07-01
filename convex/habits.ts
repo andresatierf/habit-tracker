@@ -61,7 +61,8 @@ export const createHabit = mutation({
     icon: v.string(),
     metadata: v.optional(v.array(v.object({
       name: v.string(),
-      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date")),
+      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date"), v.literal("enum")),
+      options: v.optional(v.array(v.string())),
     }))),
   },
   handler: async (ctx, args) => {
@@ -88,7 +89,8 @@ export const createSubHabit = mutation({
     icon: v.string(),
     metadata: v.optional(v.array(v.object({
       name: v.string(),
-      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date")),
+      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date"), v.literal("enum")),
+      options: v.optional(v.array(v.string())),
     }))),
   },
   handler: async (ctx, args) => {
@@ -116,7 +118,8 @@ export const updateHabit = mutation({
     icon: v.string(),
     metadata: v.optional(v.array(v.object({
       name: v.string(),
-      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date")),
+      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date"), v.literal("enum")),
+      options: v.optional(v.array(v.string())),
     }))),
   },
   handler: async (ctx, args) => {
@@ -146,7 +149,8 @@ export const updateSubHabit = mutation({
     icon: v.string(),
     metadata: v.optional(v.array(v.object({
       name: v.string(),
-      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date")),
+      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date"), v.literal("enum")),
+      options: v.optional(v.array(v.string())),
     }))),
   },
   handler: async (ctx, args) => {

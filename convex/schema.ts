@@ -11,7 +11,8 @@ const applicationTables = {
     isActive: v.boolean(),
     metadata: v.optional(v.array(v.object({
       name: v.string(),
-      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date")),
+      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date"), v.literal("enum")),
+      options: v.optional(v.array(v.string())),
     }))),
   }).index("by_user", ["userId"]),
 
@@ -24,7 +25,8 @@ const applicationTables = {
     isActive: v.boolean(),
     metadata: v.optional(v.array(v.object({
       name: v.string(),
-      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date")),
+      type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date"), v.literal("enum")),
+      options: v.optional(v.array(v.string())),
     }))),
   }).index("by_habit", ["habitId"])
    .index("by_user", ["userId"]),

@@ -8,8 +8,22 @@ interface DayCellProps {
   isToday: boolean;
   displayHabits: any[];
   displaySubHabits: any[];
-  getCompletionForDate: (date: string, habitId?: Id<"habits">, subHabitId?: Id<"subHabits">) => any;
-  handleOpenDialog: (date: string, habitId?: Id<"habits">, subHabitId?: Id<"subHabits">) => void;
+  getCompletionForDate: (
+    date: string,
+    habitId?: Id<"habits">,
+    subHabitId?: Id<"subHabits">
+  ) => any;
+  handleOpenDialog: (
+    date: string,
+    habitId?: Id<"habits">,
+    subHabitId?: Id<"subHabits">
+  ) => void;
+  toggleCompletion: (args: {
+    date: string;
+    habitId?: Id<"habits">;
+    subHabitId?: Id<"subHabits">;
+    metadata?: Record<string, any>;
+  }) => Promise<void>;
 }
 
 export function DayCell({
@@ -21,6 +35,7 @@ export function DayCell({
   displaySubHabits,
   getCompletionForDate,
   handleOpenDialog,
+  toggleCompletion,
 }: DayCellProps) {
   return (
     <div
@@ -51,7 +66,13 @@ export function DayCell({
               icon={habit.icon}
               color={habit.color}
               isCompleted={isCompleted}
-              onClick={(id) => handleOpenDialog(dateString, id)}
+              onClick={async (id) => {
+                if (isCompleted) {
+                  await toggleCompletion({ date: dateString, habitId: id });
+                } else {
+                  handleOpenDialog(dateString, id);
+                }
+              }}
             />
           );
         })}
@@ -73,7 +94,17 @@ export function DayCell({
               icon={subHabit.icon}
               color={subHabit.color}
               isCompleted={isCompleted}
-              onClick={(id) => handleOpenDialog(dateString, undefined, id)}
+              onClick={async (id) => {
+                if (isCompleted) {
+                  await toggleCompletion({
+                    date: dateString,
+                    subHabitId: id,
+                    completed: false,
+                  });
+                } else {
+                  handleOpenDialog(dateString, undefined, id);
+                }
+              }}
             />
           );
         })}

@@ -7,6 +7,7 @@ interface CalendarGridProps {
   displaySubHabits: any[];
   getCompletionForDate: (date: string, habitId?: Id<"habits">, subHabitId?: Id<"subHabits">) => any;
   handleOpenDialog: (date: string, habitId?: Id<"habits">, subHabitId?: Id<"subHabits">) => void;
+  toggleCompletion: (args: { date: string; habitId?: Id<"habits">; subHabitId?: Id<"subHabits">; metadata?: Record<string, any> }) => Promise<void>;
   isCurrentMonth: (date: Date) => boolean;
   isToday: (date: Date) => boolean;
 }
@@ -17,6 +18,7 @@ export function CalendarGrid({
   displaySubHabits,
   getCompletionForDate,
   handleOpenDialog,
+  toggleCompletion,
   isCurrentMonth,
   isToday,
 }: CalendarGridProps) {
@@ -48,6 +50,7 @@ export function CalendarGrid({
             displaySubHabits={displaySubHabits}
             getCompletionForDate={getCompletionForDate}
             handleOpenDialog={handleOpenDialog}
+            toggleCompletion={toggleCompletion}
           />
         );
       })}

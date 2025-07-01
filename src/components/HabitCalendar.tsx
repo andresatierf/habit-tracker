@@ -173,6 +173,7 @@ export function HabitCalendar({
         displaySubHabits={displaySubHabits}
         getCompletionForDate={getCompletionForDate}
         handleOpenDialog={handleOpenDialog}
+        toggleCompletion={toggleCompletion}
         isCurrentMonth={isCurrentMonth}
         isToday={isToday}
       />

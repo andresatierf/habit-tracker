@@ -3,6 +3,17 @@ import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 import { Id } from "../../convex/_generated/dataModel";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { PlusCircle, XCircle } from "lucide-react";
 
 interface SubHabitFormProps {
   habitId: Id<"habits">;
@@ -11,25 +22,89 @@ interface SubHabitFormProps {
 }
 
 const COLORS = [
-  "#ef4444", "#f97316", "#f59e0b", "#eab308", "#84cc16",
-  "#22c55e", "#10b981", "#14b8a6", "#06b6d4", "#0ea5e9",
-  "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", "#d946ef",
-  "#ec4899", "#f43f5e"
+  "#ef4444",
+  "#f97316",
+  "#f59e0b",
+  "#eab308",
+  "#84cc16",
+  "#22c55e",
+  "#10b981",
+  "#14b8a6",
+  "#06b6d4",
+  "#0ea5e9",
+  "#3b82f6",
+  "#6366f1",
+  "#8b5cf6",
+  "#a855f7",
+  "#d946ef",
+  "#ec4899",
+  "#f43f5e",
 ];
 
 const ICONS = [
-  "💪", "🏃", "📚", "💧", "🧘", "🎯", "✍️", "🎵", "🎨", "🍎",
-  "🌱", "💤", "🧹", "💰", "📱", "🚫", "⏰", "🔥", "⭐", "🎉"
+  "💪",
+  "🏃",
+  "📚",
+  "💧",
+  "🧘",
+  "🎯",
+  "✍️",
+  "🎵",
+  "🎨",
+  "🍎",
+  "🌱",
+  "💤",
+  "🧹",
+  "💰",
+  "📱",
+  "🚫",
+  "⏰",
+  "🔥",
+  "⭐",
+  "🎉",
 ];
 
-export function SubHabitForm({ habitId, subHabit, onClose }: SubHabitFormProps) {
+type MetadataField = {
+  name: string;
+  type: "text" | "number" | "boolean" | "date";
+};
+
+export function SubHabitForm({
+  habitId,
+  subHabit,
+  onClose,
+}: SubHabitFormProps) {
   const [name, setName] = useState(subHabit?.name || "");
   const [color, setColor] = useState(subHabit?.color || COLORS[0]);
   const [icon, setIcon] = useState(subHabit?.icon || ICONS[0]);
+  const [metadataFields, setMetadataFields] = useState<MetadataField[]>(
+    subHabit?.metadata || []
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const createSubHabit = useMutation(api.habits.createSubHabit);
   const updateSubHabit = useMutation(api.habits.updateSubHabit);
+
+  const handleAddMetadataField = () => {
+    setMetadataFields([...metadataFields, { name: "", type: "text" }]);
+  };
+
+  const handleMetadataFieldNameChange = (index: number, value: string) => {
+    const newFields = [...metadataFields];
+    newFields[index].name = value;
+    setMetadataFields(newFields);
+  };
+
+  const handleMetadataFieldTypeChange = (index: number, value: MetadataField['type']) => {
+    const newFields = [...metadataFields];
+    newFields[index].type = value;
+    setMetadataFields(newFields);
+  };
+
+  const handleRemoveMetadataField = (index: number) => {
+    const newFields = metadataFields.filter((_, i) => i !== index);
+    setMetadataFields(newFields);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +118,7 @@ export function SubHabitForm({ habitId, subHabit, onClose }: SubHabitFormProps) 
           name: name.trim(),
           color,
           icon,
+          metadata: metadataFields,
         });
         toast.success("Sub-habit updated successfully!");
       } else {
@@ -51,6 +127,7 @@ export function SubHabitForm({ habitId, subHabit, onClose }: SubHabitFormProps) 
           name: name.trim(),
           color,
           icon,
+          metadata: metadataFields,
         });
         toast.success("Sub-habit created successfully!");
       }
@@ -63,8 +140,8 @@ export function SubHabitForm({ habitId, subHabit, onClose }: SubHabitFormProps) 
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={onClose}>
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             {subHabit ? "Edit Sub-habit" : "Create New Sub-habit"}
@@ -73,14 +150,12 @@ export function SubHabitForm({ habitId, subHabit, onClose }: SubHabitFormProps) 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Sub-habit Name
-              </label>
-              <input
+              <Label htmlFor="subhabit-name">Sub-habit Name</Label>
+              <Input
+                id="subhabit-name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter sub-habit name..."
                 required
               />
@@ -88,9 +163,7 @@ export function SubHabitForm({ habitId, subHabit, onClose }: SubHabitFormProps) 
 
             {/* Color */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Color
-              </label>
+              <Label>Color</Label>
               <div className="grid grid-cols-8 gap-2">
                 {COLORS.map((colorOption) => (
                   <button
@@ -98,7 +171,9 @@ export function SubHabitForm({ habitId, subHabit, onClose }: SubHabitFormProps) 
                     type="button"
                     onClick={() => setColor(colorOption)}
                     className={`w-8 h-8 rounded-full border-2 ${
-                      color === colorOption ? "border-gray-900" : "border-gray-300"
+                      color === colorOption
+                        ? "border-gray-900"
+                        : "border-gray-300"
                     }`}
                     style={{ backgroundColor: colorOption }}
                   />
@@ -108,9 +183,7 @@ export function SubHabitForm({ habitId, subHabit, onClose }: SubHabitFormProps) 
 
             {/* Icon */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Icon
-              </label>
+              <Label>Icon</Label>
               <div className="grid grid-cols-10 gap-2">
                 {ICONS.map((iconOption) => (
                   <button
@@ -118,13 +191,69 @@ export function SubHabitForm({ habitId, subHabit, onClose }: SubHabitFormProps) 
                     type="button"
                     onClick={() => setIcon(iconOption)}
                     className={`w-8 h-8 text-lg flex items-center justify-center rounded border-2 ${
-                      icon === iconOption ? "border-blue-500 bg-blue-50" : "border-gray-300"
+                      icon === iconOption
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-300"
                     }`}
                   >
                     {iconOption}
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Metadata Fields */}
+            <div>
+              <Label className="block text-sm font-medium text-gray-700 mb-2">
+                Metadata Fields
+              </Label>
+              <div className="space-y-2">
+                {metadataFields.map((field, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      value={field.name}
+                      onChange={(e) =>
+                        handleMetadataFieldNameChange(index, e.target.value)
+                      }
+                      placeholder="Field Name"
+                      className="flex-1"
+                    />
+                    <Select
+                      value={field.type}
+                      onValueChange={(value: MetadataField['type']) =>
+                        handleMetadataFieldTypeChange(index, value)
+                      }
+                    >
+                      <SelectTrigger className="w-[120px]">
+                        <SelectValue placeholder="Select Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="text">Text</SelectItem>
+                        <SelectItem value="number">Number</SelectItem>
+                        <SelectItem value="boolean">Boolean</SelectItem>
+                        <SelectItem value="date">Date</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemoveMetadataField(index)}
+                    >
+                      <XCircle className="h-5 w-5 text-red-500" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-2 w-full"
+                onClick={handleAddMetadataField}
+              >
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Metadata Field
+              </Button>
             </div>
 
             {/* Preview */}
@@ -141,20 +270,21 @@ export function SubHabitForm({ habitId, subHabit, onClose }: SubHabitFormProps) 
 
             {/* Buttons */}
             <div className="flex gap-3 pt-4">
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={onClose}
-                className="flex-1 px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+                className="flex-1"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
                 disabled={isSubmitting || !name.trim()}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-1"
               >
                 {isSubmitting ? "Saving..." : subHabit ? "Update" : "Create"}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

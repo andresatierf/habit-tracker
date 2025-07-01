@@ -110,6 +110,7 @@ export function MetadataDialog({
                           <Input
                             id={name}
                             type="text"
+                            value={value || ""}
                             onChange={(e) => handleChange(e.target.value)}
                             onBlur={handleBlur}
                           />
@@ -118,6 +119,7 @@ export function MetadataDialog({
                           <Input
                             id={name}
                             type="number"
+                            value={value || 0}
                             onChange={(e) =>
                               handleChange(parseFloat(e.target.value))
                             }
@@ -137,6 +139,7 @@ export function MetadataDialog({
                           <Input
                             id={name}
                             type="date"
+                            value={value || ""}
                             onChange={handleChange}
                             onBlur={handleBlur}
                           />

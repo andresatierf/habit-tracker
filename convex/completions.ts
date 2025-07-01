@@ -97,10 +97,13 @@ export const toggleCompletion = mutation({
 
     if (existingCompletion) {
       // Toggle existing completion
-      await ctx.db.patch(existingCompletion._id, {
+      const patchData: Record<string, any> = {
         completed: !existingCompletion.completed,
-        metadata: args.metadata,
-      });
+      };
+      if (args.metadata !== undefined) {
+        patchData.metadata = args.metadata;
+      }
+      await ctx.db.patch(existingCompletion._id, patchData);
     } else {
       // Create new completion
       await ctx.db.insert("completions", {

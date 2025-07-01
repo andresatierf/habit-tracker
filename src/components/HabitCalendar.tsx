@@ -1,6 +1,5 @@
-import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery } from "convex/react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { CalendarGrid } from "./CalendarGrid";
@@ -28,6 +27,17 @@ export function HabitCalendar({
   const subHabits = useQuery(api.habits.getAllSubHabits) || [];
 
   const toggleCompletion = useMutation(api.completions.toggleCompletion);
+
+  const handleSaveMetadata = async (metadata: Record<string, any>) => {
+    if (!selectedCompletion) return;
+
+    await toggleCompletion({
+      date: selectedCompletion.date,
+      habitId: selectedCompletion.habitId,
+      subHabitId: selectedCompletion.subHabitId,
+      metadata: metadata,
+    });
+  };
 
   // Generate date range for the current month
   const dateRange = useMemo(() => {
@@ -75,48 +85,25 @@ export function HabitCalendar({
       ? subHabits.filter((sh) => selectedSubHabits.includes(sh._id))
       : subHabits.filter(
           (sh) =>
-            selectedHabits.length === 0 || selectedHabits.includes(sh.habitId)
+            selectedHabits.length === 0 || selectedHabits.includes(sh.habitId),
         );
 
   const getCompletionForDate = (
     date: string,
     habitId?: Id<"habits">,
-    subHabitId?: Id<"subHabits">
+    subHabitId?: Id<"subHabits">,
   ) => {
     return completions.find(
       (c) =>
         c.date === date &&
-        (habitId ? c.habitId === habitId : c.subHabitId === subHabitId)
+        (habitId ? c.habitId === habitId : c.subHabitId === subHabitId),
     );
   };
-
-  const form = useForm({
-    defaultValues: {},
-    onSubmit: async ({ value }) => {
-      if (!selectedCompletion) return;
-
-      await toggleCompletion({
-        date: selectedCompletion.date,
-        habitId: selectedCompletion.habitId,
-        subHabitId: selectedCompletion.subHabitId,
-        metadata: value,
-      });
-      setSelectedCompletion(null);
-      form.reset();
-    },
-  });
-
-  // Use useEffect to reset form values when selectedCompletion changes
-  useEffect(() => {
-    if (selectedCompletion) {
-      form.reset(selectedCompletion.existingMetadata);
-    }
-  }, [selectedCompletion, form]);
 
   const handleOpenDialog = (
     date: string,
     habitId?: Id<"habits">,
-    subHabitId?: Id<"subHabits">
+    subHabitId?: Id<"subHabits">,
   ) => {
     const completion = getCompletionForDate(date, habitId, subHabitId);
     let initialMetadataSchema: MetadataField[] = [];
@@ -189,13 +176,11 @@ export function HabitCalendar({
         isCurrentMonth={isCurrentMonth}
         isToday={isToday}
       />
-      {selectedCompletion && (
-        <MetadataDialog
-          selectedCompletion={selectedCompletion}
-          setSelectedCompletion={setSelectedCompletion}
-          form={form}
-        />
-      )}
+      <MetadataDialog
+        selectedCompletion={selectedCompletion}
+        setSelectedCompletion={setSelectedCompletion}
+        onSave={handleSaveMetadata}
+      />
     </div>
   );
 }

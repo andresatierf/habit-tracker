@@ -10,12 +10,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useForm } from "@tanstack/react-form";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
 
 interface MetadataDialogProps {
   selectedCompletion: any;
   setSelectedCompletion: Dispatch<SetStateAction<any>>;
-  form: ReturnType<typeof useForm>;
+  onSave: (metadata: Record<string, any>) => Promise<void>;
 }
 
 type MetadataField = {
@@ -26,12 +26,51 @@ type MetadataField = {
 export function MetadataDialog({
   selectedCompletion,
   setSelectedCompletion,
-  form,
+  onSave,
 }: MetadataDialogProps) {
+  const form = useForm({
+    defaultValues: {},
+    onSubmit: async ({ value }) => {
+      await onSave(value);
+      setSelectedCompletion(null);
+      form.reset();
+    },
+  });
+
+  useEffect(() => {
+    if (selectedCompletion) {
+      form.reset(selectedCompletion.existingMetadata);
+    }
+  }, [selectedCompletion, form]);
+
+  const validateField = useCallback(
+    (fieldSchema) =>
+      ({ value }) => {
+        console.log({ fieldSchema, value });
+        if (fieldSchema.type === "text" && !value) {
+          return "This field is required";
+        }
+        if (
+          fieldSchema.type === "number" &&
+          (value === null || Number.isNaN(value))
+        ) {
+          return "Please enter a valid number";
+        }
+        if (fieldSchema.type === "date" && !value) {
+          return "Please select a date";
+        }
+        return undefined;
+      },
+    [],
+  );
+
   return (
     <Dialog
       open={!!selectedCompletion}
-      onOpenChange={() => setSelectedCompletion(null)}
+      onOpenChange={() => {
+        setSelectedCompletion(null);
+        form.reset();
+      }}
     >
       <DialogContent className="bg-white">
         <DialogHeader>
@@ -45,82 +84,73 @@ export function MetadataDialog({
           }}
         >
           <div className="py-4 space-y-4">
-            {selectedCompletion.metadataSchema.map(
+            {selectedCompletion?.metadataSchema.map(
               (fieldSchema: MetadataField) => (
                 <form.Field
                   key={fieldSchema.name}
                   name={fieldSchema.name}
                   validators={{
-                    onChange: ({ value }) => {
-                      if (fieldSchema.type === "text" && !value) {
-                        return "This field is required";
-                      }
-                      if (
-                        fieldSchema.type === "number" &&
-                        (value === null || isNaN(value))
-                      ) {
-                        return "Please enter a valid number";
-                      }
-                      if (fieldSchema.type === "date" && !value) {
-                        return "Please select a date";
-                      }
-                      return undefined;
-                    },
+                    onChange: validateField(fieldSchema),
+                    onBlur: validateField(fieldSchema),
                   }}
                 >
-                  {(field) => {
-                    const fieldName = field.name;
-                    const fieldValue = field.state.value;
-                    const fieldErrors = field.state.meta.errors;
-
+                  {({
+                    name,
+                    state: {
+                      value,
+                      meta: { errors },
+                    },
+                    handleChange,
+                    handleBlur,
+                  }) => {
                     return (
-                      <div key={fieldName}>
-                        <Label htmlFor={fieldName}>{fieldSchema.name}</Label>
+                      <div key={name}>
+                        <Label htmlFor={name}>{fieldSchema.name}</Label>
                         {fieldSchema.type === "text" && (
                           <Input
-                            id={fieldName}
+                            id={name}
                             type="text"
-                            {...field.getInputProps()}
+                            onChange={(e) => handleChange(e.target.value)}
+                            onBlur={handleBlur}
                           />
                         )}
                         {fieldSchema.type === "number" && (
                           <Input
-                            id={fieldName}
+                            id={name}
                             type="number"
-                            {...field.getInputProps()}
                             onChange={(e) =>
-                              field.handleChange(parseFloat(e.target.value))
+                              handleChange(parseFloat(e.target.value))
                             }
+                            onBlur={handleBlur}
                           />
                         )}
                         {fieldSchema.type === "boolean" && (
                           <input
-                            id={fieldName}
+                            id={name}
                             type="checkbox"
-                            {...field.getInputProps()}
-                            checked={fieldValue || false}
-                            onChange={(e) =>
-                              field.handleChange(e.target.checked)
-                            }
+                            checked={value || false}
+                            onChange={(e) => handleChange(e.target.checked)}
+                            onBlur={handleBlur}
                           />
                         )}
                         {fieldSchema.type === "date" && (
                           <Input
-                            id={fieldName}
+                            id={name}
                             type="date"
-                            {...field.getInputProps()}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
                           />
                         )}
-                        {fieldErrors && (
+                        {errors && (
                           <p className="text-red-500 text-sm mt-1">
-                            {fieldErrors.join(", ")}
+                            {errors.join(", ")}
                           </p>
                         )}
                       </div>
                     );
                   }}
                 </form.Field>
-              )
+              ),
             )}
           </div>
           <DialogFooter>

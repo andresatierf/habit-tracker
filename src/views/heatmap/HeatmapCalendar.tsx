@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 
 interface HeatmapCalendarProps {
   selectedHabits: Id<"habits">[];
@@ -19,11 +19,11 @@ export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
 
     // Start from the Sunday before the first day of the year
     const firstSunday = new Date(startDate);
-    firstSunday.setDate(startDate.getDate() - startDate.getDay());
+    firstSunday.setDate(startDate.getDate() - startDate.getDay() + 1);
 
     // End on the Saturday after the last day of the year
     const lastSaturday = new Date(endDate);
-    lastSaturday.setDate(endDate.getDate() + (6 - endDate.getDay()));
+    lastSaturday.setDate(endDate.getDate() + (6 - endDate.getDay() + 1));
 
     const dates = [];
     const current = new Date(firstSunday);
@@ -56,7 +56,7 @@ export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
   // Calculate completion intensity for each date
   const getCompletionIntensity = (date: string) => {
     const dateCompletions = completions.filter(
-      (c) => c.date === date && c.completed,
+      (c) => c.date === date && c.completed
     );
     const totalPossible = displayHabits.length;
 
@@ -86,7 +86,7 @@ export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
   const getTooltipText = (date: string, intensity: number) => {
     const dateObj = new Date(date);
     const dateCompletions = completions.filter(
-      (c) => c.date === date && c.completed,
+      (c) => c.date === date && c.completed
     );
     const totalPossible = displayHabits.length;
 
@@ -110,7 +110,7 @@ export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
   // Calculate stats
   const stats = useMemo(() => {
     const yearDates = dateRange.dates.filter(
-      (date) => date.getFullYear() === selectedYear,
+      (date) => date.getFullYear() === selectedYear
     );
     const totalDays = yearDates.length;
     const activeDays = yearDates.filter((date) => {
@@ -188,9 +188,9 @@ export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="m-auto grid w-fit grid-cols-[auto_1fr] grid-rows-[auto_1fr] gap-2">
         {/* Month labels */}
-        <div className="mb-2 flex justify-between text-xs text-gray-500">
+        <div className="col-start-2 row-start-1 mb-2 flex justify-between text-xs text-gray-500">
           {[
             "Jan",
             "Feb",
@@ -211,22 +211,22 @@ export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
           ))}
         </div>
 
-        {/* Heatmap grid */}
-        <div className="flex gap-1">
-          {/* Day labels */}
-          <div className="mr-2 flex flex-col gap-1">
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
-              (day, index) => (
-                <div
-                  key={day}
-                  className="flex h-3 items-center text-xs text-gray-500"
-                >
-                  {index % 2 === 1 ? day : ""}
-                </div>
-              ),
-            )}
-          </div>
+        {/* Day labels */}
+        <div className="col-start-1 row-start-2 mr-2 flex flex-col gap-1">
+          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
+            (day, index) => (
+              <div
+                key={day}
+                className="flex h-3 items-center text-xs text-gray-500"
+              >
+                {index % 2 === 1 ? day : ""}
+              </div>
+            )
+          )}
+        </div>
 
+        {/* Heatmap grid */}
+        <div className="col-start-2 row-start-2 flex gap-1">
           {/* Calendar grid */}
           <div className="flex gap-1">
             {weeks.map((week, weekIndex) => (

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Id } from "../../convex/_generated/dataModel";
+import type { Id } from "../../convex/_generated/dataModel";
 
 interface HabitCompletionButtonProps {
   id: Id<"habits">;
@@ -22,7 +22,7 @@ export function HabitCompletionButton({
     <Button
       key={id}
       onClick={() => onClick(id)}
-      className={`w-full text-left p-1 rounded text-xs transition-colors ${
+      className={`w-full rounded p-1 text-left text-xs transition-colors ${
         isCompleted
           ? "bg-green-100 text-green-800"
           : "bg-gray-100 text-gray-600 hover:bg-gray-200"

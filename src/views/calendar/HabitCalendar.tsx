@@ -1,10 +1,10 @@
 import { useMutation, useQuery } from "convex/react";
 import { useMemo, useState } from "react";
-import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { CalendarGrid } from "./CalendarGrid";
 import { CalendarHeader } from "./CalendarHeader";
-import { MetadataDialog } from "./MetadataDialog";
+import { MetadataDialog } from "../../components/MetadataDialog";
 
 interface HabitCalendarProps {
   selectedHabits: Id<"habits">[];
@@ -16,9 +16,7 @@ type MetadataField = {
   options?: string[];
 };
 
-export function HabitCalendar({
-  selectedHabits,
-}: HabitCalendarProps) {
+export function HabitCalendar({ selectedHabits }: HabitCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedCompletion, setSelectedCompletion] = useState<any>(null);
 
@@ -73,33 +71,28 @@ export function HabitCalendar({
 
   // Filter habits and sub-habits based on selection
   const displayHabits = useMemo(() => {
-    const filteredHabits = selectedHabits.length > 0
-      ? allHabits.filter((h) => selectedHabits.includes(h._id) && h.parentId === null)
-      : allHabits.filter(h => h.parentId === null);
+    const filteredHabits =
+      selectedHabits.length > 0
+        ? allHabits.filter(
+            (h) => selectedHabits.includes(h._id) && h.parentId === undefined,
+          )
+        : allHabits.filter((h) => h.parentId === undefined);
 
-    return filteredHabits.map(habit => ({
+    return filteredHabits.map((habit) => ({
       ...habit,
-      subHabits: allHabits.filter(sh => sh.parentId === habit._id && sh.isActive)
+      subHabits: allHabits.filter(
+        (sh) => sh.parentId === habit._id && sh.isActive,
+      ),
     }));
   }, [selectedHabits, allHabits]);
 
-  const getCompletionForDate = (
-    date: string,
-    habitId: Id<"habits">,
-  ) => {
-    return completions.find(
-      (c) =>
-        c.date === date &&
-        c.habitId === habitId
-    );
+  const getCompletionForDate = (date: string, habitId: Id<"habits">) => {
+    return completions.find((c) => c.date === date && c.habitId === habitId);
   };
 
-  const handleOpenDialog = (
-    date: string,
-    habitId: Id<"habits">,
-  ) => {
+  const handleOpenDialog = (date: string, habitId: Id<"habits">) => {
     const completion = getCompletionForDate(date, habitId);
-    const habit = allHabits.find(h => h._id === habitId);
+    const habit = allHabits.find((h) => h._id === habitId);
 
     let initialMetadataSchema: MetadataField[] = [];
     let initialMetadataValues: Record<string, any> = {};
@@ -147,7 +140,7 @@ export function HabitCalendar({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
       <CalendarHeader
         currentDate={currentDate}
         navigateMonth={navigateMonth}

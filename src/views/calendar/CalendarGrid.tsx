@@ -1,23 +1,17 @@
-import { Id } from "../../convex/_generated/dataModel";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { DayCell } from "./DayCell";
 
 interface CalendarGridProps {
   dateRange: { dates: Date[]; startDate: string; endDate: string };
   displayHabits: any[];
-  getCompletionForDate: (
-    date: string,
-    habitId: Id<"habits">,
-  ) => any;
-  handleOpenDialog: (
-    date: string,
-    habitId: Id<"habits">,
-  ) => void;
+  getCompletionForDate: (date: string, habitId: Id<"habits">) => any;
+  handleOpenDialog: (date: string, habitId: Id<"habits">) => void;
   toggleCompletion: (args: {
     date: string;
     habitId: Id<"habits">;
     completed?: boolean;
     metadata?: Record<string, any>;
-  }) => Promise<void>;
+  }) => Promise<null>;
   isCurrentMonth: (date: Date) => boolean;
   isToday: (date: Date) => boolean;
 }

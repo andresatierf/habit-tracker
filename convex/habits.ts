@@ -13,7 +13,7 @@ export const getHabits = query({
       .query("habits")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .filter((q) => q.eq(q.field("isActive"), true))
-      .filter((q) => q.eq(q.field("parentId"), null))
+      .filter((q) => q.eq(q.field("parentId"), undefined))
       .collect();
 
     return habits;
@@ -52,11 +52,11 @@ export const createHabit = mutation({
             v.literal("number"),
             v.literal("boolean"),
             v.literal("date"),
-            v.literal("enum")
+            v.literal("enum"),
           ),
           options: v.optional(v.array(v.string())),
-        })
-      )
+        }),
+      ),
     ),
   },
   handler: async (ctx, args) => {
@@ -92,11 +92,11 @@ export const updateHabit = mutation({
             v.literal("number"),
             v.literal("boolean"),
             v.literal("date"),
-            v.literal("enum")
+            v.literal("enum"),
           ),
           options: v.optional(v.array(v.string())),
-        })
-      )
+        }),
+      ),
     ),
   },
   handler: async (ctx, args) => {

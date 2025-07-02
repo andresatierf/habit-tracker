@@ -64,11 +64,10 @@ export const toggleCompletion = mutation({
     if (!userId) throw new Error("Not authenticated");
 
     // Find existing completion
-    let existingCompletion;
-    existingCompletion = await ctx.db
+    const existingCompletion = await ctx.db
       .query("completions")
       .withIndex("by_habit_and_date", (q) =>
-        q.eq("habitId", args.habitId!).eq("date", args.date)
+        q.eq("habitId", args.habitId).eq("date", args.date)
       )
       .filter((q) => q.eq(q.field("userId"), userId))
       .first();

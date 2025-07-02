@@ -1,4 +1,5 @@
 import { useQuery } from "convex/react";
+import { Button } from "@/components/button";
 import type { Id } from "../../convex/_generated/dataModel";
 import { api } from "../../convex/_generated/api";
 
@@ -39,18 +40,20 @@ export function FilterPanel({
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
         <div className="flex gap-2">
-          <button
+          <Button
             onClick={selectAllHabits}
-            className="rounded bg-blue-100 px-3 py-1 text-sm text-blue-700 transition-colors hover:bg-blue-200"
+            variant="filterPrimary"
+            size="filter"
           >
             Select All
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={clearAllFilters}
-            className="rounded bg-gray-100 px-3 py-1 text-sm text-gray-700 transition-colors hover:bg-gray-200"
+            variant="filterSecondary"
+            size="filter"
           >
             Clear All
-          </button>
+          </Button>
         </div>
       </div>
 

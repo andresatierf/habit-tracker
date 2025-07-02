@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/button";
 import React from "react";
 
 interface CalendarHeaderProps {
@@ -13,7 +13,7 @@ export function CalendarHeader({
   setCurrentDate,
 }: CalendarHeaderProps) {
   return (
-    <div className="flex items-center justify-between mb-6">
+    <div className="mb-6 flex items-center justify-between">
       <h2 className="text-xl font-semibold text-gray-900">
         {currentDate.toLocaleDateString("en-US", {
           month: "long",

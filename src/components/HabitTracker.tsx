@@ -1,4 +1,5 @@
 import { useQuery } from "convex/react";
+import { Button } from "./button";
 import { useState } from "react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -38,16 +39,12 @@ export function HabitTracker() {
     mode: "calendar" | "list" | "table" | "heatmap",
     label: string,
   ) => (
-    <button
+    <Button
+      variant={viewMode === mode ? "default" : "secondary"}
       onClick={() => setViewMode(mode)}
-      className={`rounded-lg px-4 py-2 transition-colors ${
-        viewMode === mode
-          ? "bg-blue-600 text-white"
-          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-      }`}
     >
       {label}
-    </button>
+    </Button>
   );
 
   return (
@@ -60,12 +57,7 @@ export function HabitTracker() {
           {getViewModeButton("heatmap", "Heatmap")}
           {getViewModeButton("list", "List")}
           {getViewModeButton("table", "Table")}
-          <button
-            onClick={handleAddHabit}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-          >
-            Add Habit
-          </button>
+          <Button onClick={handleAddHabit}>Add Habit</Button>
         </div>
       </div>
 

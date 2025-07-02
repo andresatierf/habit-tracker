@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/button";
 import {
   Dialog,
   DialogClose,
@@ -6,16 +6,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/dialog";
+import { Input } from "@/components/input";
+import { Label } from "@/components/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/select";
 import { useForm } from "@tanstack/react-form";
 import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
 
@@ -69,7 +69,7 @@ export function MetadataDialog({
         }
         return undefined;
       },
-    []
+    [],
   );
 
   return (
@@ -91,7 +91,7 @@ export function MetadataDialog({
             form.handleSubmit();
           }}
         >
-          <div className="py-4 space-y-4">
+          <div className="space-y-4 py-4">
             {selectedCompletion?.metadataSchema.map(
               (fieldSchema: MetadataField) => (
                 <form.Field
@@ -170,7 +170,7 @@ export function MetadataDialog({
                           </Select>
                         )}
                         {errors && (
-                          <p className="text-red-500 text-sm mt-1">
+                          <p className="mt-1 text-sm text-red-500">
                             {errors.join(", ")}
                           </p>
                         )}
@@ -178,12 +178,12 @@ export function MetadataDialog({
                     );
                   }}
                 </form.Field>
-              )
+              ),
             )}
           </div>
           <DialogFooter>
             {form.state.meta?.errors && form.state.meta.errors.length > 0 && (
-              <div className="text-red-500 text-sm mt-2">
+              <div className="mt-2 text-sm text-red-500">
                 {form.state.meta.errors.map((error, index) => (
                   <p key={index}>{error}</p>
                 ))}

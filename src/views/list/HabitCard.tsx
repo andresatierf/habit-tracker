@@ -1,4 +1,5 @@
 import { useQuery } from "convex/react";
+import { Button } from "@/components/button";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { api } from "../../../convex/_generated/api";
 
@@ -46,31 +47,39 @@ export function HabitCard({
             )}
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
               onClick={onAddSubHabit}
-              className="rounded bg-green-100 px-3 py-1 text-sm text-green-700 transition-colors hover:bg-green-200"
+              variant="outline"
+              size="sm"
+              className="bg-green-100 text-green-700 hover:bg-green-200"
             >
               Add Sub-habit
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={onEdit}
-              className="rounded bg-blue-100 px-3 py-1 text-sm text-blue-700 transition-colors hover:bg-blue-200"
+              variant="outline"
+              size="sm"
+              className="bg-blue-100 text-blue-700 hover:bg-blue-200"
             >
               Edit
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={onDelete}
-              className="rounded bg-red-100 px-3 py-1 text-sm text-red-700 transition-colors hover:bg-red-200"
+              variant="outline"
+              size="sm"
+              className="bg-red-100 text-red-700 hover:bg-red-200"
             >
               Delete
-            </button>
+            </Button>
             {subHabits.length > 0 && (
-              <button
+              <Button
                 onClick={onToggleExpanded}
-                className="rounded bg-gray-100 px-3 py-1 text-sm text-gray-700 transition-colors hover:bg-gray-200"
+                variant="outline"
+                size="sm"
+                className="bg-gray-100 text-gray-700 hover:bg-gray-200"
               >
                 {isExpanded ? "Collapse" : "Expand"}
-              </button>
+              </Button>
             )}
           </div>
         </div>

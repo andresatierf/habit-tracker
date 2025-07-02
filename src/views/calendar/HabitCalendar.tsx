@@ -20,7 +20,7 @@ export function HabitCalendar({ selectedHabits }: HabitCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedCompletion, setSelectedCompletion] = useState<any>(null);
 
-  const allHabits = useQuery(api.habits.getHabits) || [];
+  const allHabits = useQuery(api.habits.getHabits, { includeSubHabits: true }) || [];
 
   const toggleCompletion = useMutation(api.completions.toggleCompletion);
 

@@ -1,18 +1,21 @@
-import { Id } from "../../convex/_generated/dataModel";
+import { useQuery } from "convex/react";
+import type { Id } from "../../convex/_generated/dataModel";
+import { api } from "../../convex/_generated/api";
 
 interface FilterPanelProps {
-  allHabits: any[]; // Now includes both top-level and sub-habits
   selectedHabits: Id<"habits">[];
   onHabitsChange: (habits: Id<"habits">[]) => void;
 }
 
 export function FilterPanel({
-  allHabits,
   selectedHabits,
   onHabitsChange,
 }: FilterPanelProps) {
+  const allHabits =
+    useQuery(api.habits.getHabits, { includeSubHabits: true }) || [];
+
   const topLevelHabits = allHabits.filter(
-    (habit) => habit.parentId === undefined
+    (habit) => habit.parentId === undefined,
   );
 
   const handleHabitToggle = (habitId: Id<"habits">) => {
@@ -32,19 +35,19 @@ export function FilterPanel({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-      <div className="flex items-center justify-between mb-4">
+    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
         <div className="flex gap-2">
           <button
             onClick={selectAllHabits}
-            className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+            className="rounded bg-blue-100 px-3 py-1 text-sm text-blue-700 transition-colors hover:bg-blue-200"
           >
             Select All
           </button>
           <button
             onClick={clearAllFilters}
-            className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+            className="rounded bg-gray-100 px-3 py-1 text-sm text-gray-700 transition-colors hover:bg-gray-200"
           >
             Clear All
           </button>
@@ -54,11 +57,11 @@ export function FilterPanel({
       <div className="grid grid-cols-1 gap-4">
         {/* Habits Filter */}
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-2">Habits</h4>
-          <div className="space-y-2 max-h-40 overflow-y-auto">
+          <h4 className="mb-2 text-sm font-medium text-gray-700">Habits</h4>
+          <div className="max-h-40 space-y-2 overflow-y-auto">
             {topLevelHabits.map((habit) => (
               <div key={habit._id}>
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="checkbox"
                     checked={selectedHabits.includes(habit._id)}
@@ -66,7 +69,7 @@ export function FilterPanel({
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                   <div
-                    className="w-3 h-3 rounded-full"
+                    className="size-3 rounded-full"
                     style={{ backgroundColor: habit.color }}
                   />
                   <span className="text-lg">{habit.icon}</span>
@@ -80,7 +83,7 @@ export function FilterPanel({
                       .map((subHabit) => (
                         <label
                           key={subHabit._id}
-                          className="flex items-center gap-2 cursor-pointer"
+                          className="flex cursor-pointer items-center gap-2"
                         >
                           <input
                             type="checkbox"
@@ -89,7 +92,7 @@ export function FilterPanel({
                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
                           <div
-                            className="w-3 h-3 rounded-full"
+                            className="size-3 rounded-full"
                             style={{ backgroundColor: subHabit.color }}
                           />
                           <span className="text-lg">{subHabit.icon}</span>
@@ -108,7 +111,7 @@ export function FilterPanel({
 
       {/* Active Filters Summary */}
       {selectedHabits.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="mt-4 border-t border-gray-200 pt-4">
           <p className="text-sm text-gray-600">
             Showing {selectedHabits.length} selected habits
           </p>

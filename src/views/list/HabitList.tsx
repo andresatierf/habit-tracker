@@ -10,7 +10,7 @@ interface HabitListProps {
 }
 
 export function HabitList({ onEditHabit }: HabitListProps) {
-  const allHabits = useQuery(api.habits.getHabits) || [];
+  const allHabits = useQuery(api.habits.getHabits, { includeSubHabits: true }) || [];
 
   useEffect(() => {
     if (allHabits.length > 0) {

@@ -2,7 +2,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 
 export function HabitsTable() {
-  const allHabits = useQuery(api.habits.getHabits) || [];
+  const allHabits = useQuery(api.habits.getHabits, { includeSubHabits: true }) || [];
 
   const topLevelHabits = allHabits.filter(
     (habit) => habit.parentId === undefined

@@ -21,11 +21,25 @@ export default tseslint.config(
     extends: [
       js.configs.recommended,
       ...tseslint.configs.recommendedTypeChecked,
+      ...tailwind.configs["flat/recommended"],
       importPlugin.flatConfigs.recommended,
       importPlugin.flatConfigs.typescript,
-      ...tailwind.configs["flat/recommended"],
     ],
     files: ["**/*.{ts,tsx}"],
+    settings: {
+      // NOTE: this should not be required with tseslint.config
+      //       but it was not working
+      "import/resolver": {
+        typescript: {
+          project: [
+            "./tsconfig.node.json",
+            "./tsconfig.app.json",
+            "./tsconfig.json",
+            "./convex/tsconfig.json",
+          ],
+        },
+      },
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: {
@@ -63,16 +77,16 @@ export default tseslint.config(
       // Allow escaping the compiler
       "@typescript-eslint/ban-ts-comment": "error",
 
-      // Allow explicit `any`s
-      "@typescript-eslint/no-explicit-any": "off",
-
-      // START: Allow implicit `any`s
-      "@typescript-eslint/no-unsafe-argument": "off",
-      "@typescript-eslint/no-unsafe-assignment": "off",
-      "@typescript-eslint/no-unsafe-call": "off",
-      "@typescript-eslint/no-unsafe-member-access": "off",
-      "@typescript-eslint/no-unsafe-return": "off",
-      // END: Allow implicit `any`s
+      // // Allow explicit `any`s
+      // "@typescript-eslint/no-explicit-any": "off",
+      //
+      // // START: Allow implicit `any`s
+      // "@typescript-eslint/no-unsafe-argument": "off",
+      // "@typescript-eslint/no-unsafe-assignment": "off",
+      // "@typescript-eslint/no-unsafe-call": "off",
+      // "@typescript-eslint/no-unsafe-member-access": "off",
+      // "@typescript-eslint/no-unsafe-return": "off",
+      // // END: Allow implicit `any`s
 
       // Allow async functions without await
       // for consistency (esp. Convex `handler`s)

@@ -4,17 +4,23 @@ import { mutation, query } from "./_generated/server";
 
 // Get all habits for the current user
 export const getHabits = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { includeSubHabits: v.optional(v.boolean()) },
+  handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return [];
 
-    const habits = await ctx.db
+    let habitsQuery = ctx.db
       .query("habits")
       .withIndex("by_user", (q) => q.eq("userId", userId))
-      .filter((q) => q.eq(q.field("isActive"), true))
-      .filter((q) => q.eq(q.field("parentId"), undefined))
-      .collect();
+      .filter((q) => q.eq(q.field("isActive"), true));
+
+    if (!args.includeSubHabits) {
+      habitsQuery = habitsQuery.filter((q) =>
+        q.eq(q.field("parentId"), undefined),
+      );
+    }
+
+    const habits = await habitsQuery.collect();
 
     return habits;
   },

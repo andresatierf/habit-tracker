@@ -101,18 +101,22 @@ export function HabitCard({
                   <span className="text-gray-700">{subHabit.name}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
+                  <Button
                     onClick={() => onEditSubHabit(subHabit)}
-                    className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-700 transition-colors hover:bg-blue-200"
+                    variant="outline"
+                    size="sm"
+                    className="bg-blue-100 px-2 py-1 text-xs text-blue-700 transition-colors hover:bg-blue-200"
                   >
                     Edit
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => onDeleteSubHabit(subHabit._id)}
-                    className="rounded bg-red-100 px-2 py-1 text-xs text-red-700 transition-colors hover:bg-red-200"
+                    variant="outline"
+                    size="sm"
+                    className="bg-red-100 px-2 py-1 text-xs text-red-700 transition-colors hover:bg-red-200"
                   >
                     Delete
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}

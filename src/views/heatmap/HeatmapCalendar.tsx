@@ -10,7 +10,7 @@ interface HeatmapCalendarProps {
 export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
-  const allHabits = useQuery(api.habits.getHabits) || [];
+  const allHabits = useQuery(api.habits.getHabits, { includeSubHabits: true }) || [];
 
   // Generate date range for the entire year
   const dateRange = useMemo(() => {

@@ -1,14 +1,12 @@
-import { useQuery } from "convex/react";
-import { Button } from "./button";
 import { useState } from "react";
-import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
-import { HeatmapCalendar } from "../views/heatmap/HeatmapCalendar";
-import { FilterPanel } from "./FilterPanel";
 import { HabitCalendar } from "../views/calendar/HabitCalendar";
-import { HabitForm } from "./HabitForm";
+import { HeatmapCalendar } from "../views/heatmap/HeatmapCalendar";
 import { HabitList } from "../views/list/HabitList";
 import { HabitsTable } from "../views/table/HabitsTable";
+import { Button } from "./button";
+import { FilterPanel } from "./FilterPanel";
+import { HabitForm } from "./HabitForm";
 
 export function HabitTracker() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -17,8 +15,6 @@ export function HabitTracker() {
   const [viewMode, setViewMode] = useState<
     "calendar" | "list" | "table" | "heatmap"
   >("calendar");
-
-  const allHabits = useQuery(api.habits.getHabits) || [];
 
   const handleAddHabit = () => {
     setEditingHabit(null);
@@ -64,7 +60,6 @@ export function HabitTracker() {
       {/* Filter Panel - show for calendar and heatmap views */}
       {(viewMode === "calendar" || viewMode === "heatmap") && (
         <FilterPanel
-          allHabits={allHabits}
           selectedHabits={selectedHabits}
           onHabitsChange={setSelectedHabits}
         />

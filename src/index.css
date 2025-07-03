@@ -33,6 +33,9 @@
 
   --radius: 0.5rem;
 
+  --section: 2rem;
+  --container: 1rem;
+
   --color-light: #ffffff;
   --color-dark: #171717;
 }

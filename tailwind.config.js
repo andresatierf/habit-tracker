@@ -39,8 +39,8 @@ export default {
         },
       },
       spacing: {
-        section: "2rem",
-        container: "1rem",
+        section: "var(--section)",
+        container: "var(--container)",
       },
       borderRadius: {
         lg: "var(--radius)",

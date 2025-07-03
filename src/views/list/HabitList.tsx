@@ -1,8 +1,12 @@
-import { useQuery } from "convex/react";
 import { useEffect, useState } from "react";
+
+import { useQuery } from "convex/react";
+
+import { HabitForm } from "@/components/HabitForm";
+
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
-import { HabitForm } from "../../components/HabitForm";
+
 import { HabitListContent } from "./HabitListContent";
 
 interface HabitListProps {
@@ -10,7 +14,7 @@ interface HabitListProps {
 }
 
 export function HabitList({ onEditHabit }: HabitListProps) {
-  const allHabits = useQuery(api.habits.getHabits) || [];
+  const allHabits = useQuery(api.habits.getHabits, {}) || [];
 
   useEffect(() => {
     if (allHabits.length > 0) {
@@ -23,8 +27,7 @@ export function HabitList({ onEditHabit }: HabitListProps) {
     new Set(),
   );
   const [isHabitFormOpen, setIsHabitFormOpen] = useState(false);
-  const [habitFormParentId, setHabitFormParentId] =
-    useState<Id<"habits"> | null>(null);
+  const [habitFormParentId, setHabitFormParentId] = useState<Id<"habits">>();
   const [editingHabit, setEditingHabit] = useState<any>(null);
 
   const toggleExpanded = (habitId: Id<"habits">) => {
@@ -46,21 +49,19 @@ export function HabitList({ onEditHabit }: HabitListProps) {
   const handleCloseHabitForm = () => {
     setIsHabitFormOpen(false);
     setEditingHabit(null);
-    setHabitFormParentId(null);
+    setHabitFormParentId(undefined);
   };
 
   return (
     <div className="space-y-4">
       <HabitListContent
-        allHabits={allHabits}
         expandedHabits={expandedHabits}
         toggleExpanded={toggleExpanded}
         onAdd={handleAddSubHabit}
         onEdit={onEditHabit}
       />
-
       <HabitForm
-        habit={editingHabit}
+        habitId={editingHabit}
         parentId={habitFormParentId}
         isOpen={isHabitFormOpen}
         onClose={handleCloseHabitForm}

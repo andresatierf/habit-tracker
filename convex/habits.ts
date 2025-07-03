@@ -1,5 +1,6 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
+
 import { mutation, query } from "./_generated/server";
 
 // Get all habits for the current user
@@ -83,10 +84,10 @@ export const createHabit = mutation({
 
 // Get habit
 export const getHabit = query({
-  args: { habitId: v.optional(v.id("habits")) },
+  args: { habitId: v.id("habits") },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId || !args.habitId) return null;
+    if (!userId) return null;
 
     const habit = await ctx.db
       .query("habits")

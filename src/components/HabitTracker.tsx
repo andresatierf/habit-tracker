@@ -1,12 +1,15 @@
 import { useState } from "react";
-import type { Id } from "../../convex/_generated/dataModel";
-import { HabitList } from "../views/list/HabitList";
-import { Button } from "./button";
-import { HabitForm } from "./HabitForm";
-import { FilterPanel } from "./FilterPanel";
+
 import { HabitCalendar } from "@/views/calendar/HabitCalendar";
 import { HeatmapCalendar } from "@/views/heatmap/HeatmapCalendar";
 import { HabitsTable } from "@/views/table/HabitsTable";
+
+import type { Id } from "../../convex/_generated/dataModel";
+import { HabitList } from "../views/list/HabitList";
+
+import { Button } from "./button";
+import { FilterPanel } from "./FilterPanel";
+import { HabitForm } from "./HabitForm";
 
 export function HabitTracker() {
   const [isFormOpen, setIsFormOpen] = useState(false);

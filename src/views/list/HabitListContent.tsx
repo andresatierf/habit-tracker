@@ -1,10 +1,12 @@
-import React from "react";
+import { useQuery } from "convex/react";
+
+import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
+
 import { HabitCard } from "./HabitCard";
 import { NoHabitsMessage } from "./NoHabitsMessage";
 
 interface HabitListContentProps {
-  allHabits: any[];
   expandedHabits: Set<Id<"habits">>;
   toggleExpanded: (habitId: Id<"habits">) => void;
   onAdd: (parentId: Id<"habits">) => void;
@@ -12,12 +14,12 @@ interface HabitListContentProps {
 }
 
 export function HabitListContent({
-  allHabits,
   expandedHabits,
   toggleExpanded,
   onAdd,
   onEdit,
 }: HabitListContentProps) {
+  const allHabits = useQuery(api.habits.getHabits, {}) || [];
   return (
     <div className="space-y-4">
       {allHabits.length === 0 ? (

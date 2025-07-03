@@ -1,12 +1,17 @@
-import { useMutation, useQuery } from "convex/react";
 import { useMemo, useState } from "react";
+
+import { Temporal } from "@js-temporal/polyfill";
+import { useMutation, useQuery } from "convex/react";
+
+import { generateDateRange } from "@/lib/utils";
+
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
+import { MetadataDialog } from "../../components/MetadataDialog";
+
 import { CalendarGrid } from "./CalendarGrid";
 import { CalendarHeader } from "./CalendarHeader";
-import { MetadataDialog } from "../../components/MetadataDialog";
-import { Temporal } from "@js-temporal/polyfill";
-import { generateDateRange } from "@/lib/utils";
+
 
 interface HabitCalendarProps {
   selectedHabits: Id<"habits">[];

@@ -1,4 +1,5 @@
 import { Button } from "@/components/button";
+
 import type { Id } from "../../convex/_generated/dataModel";
 
 interface HabitCompletionButtonProps {

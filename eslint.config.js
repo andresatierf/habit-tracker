@@ -77,20 +77,57 @@ export default tseslint.config(
       // Allow escaping the compiler
       "@typescript-eslint/ban-ts-comment": "error",
 
-      // // Allow explicit `any`s
-      // "@typescript-eslint/no-explicit-any": "off",
-      //
-      // // START: Allow implicit `any`s
-      // "@typescript-eslint/no-unsafe-argument": "off",
-      // "@typescript-eslint/no-unsafe-assignment": "off",
-      // "@typescript-eslint/no-unsafe-call": "off",
-      // "@typescript-eslint/no-unsafe-member-access": "off",
-      // "@typescript-eslint/no-unsafe-return": "off",
-      // // END: Allow implicit `any`s
+      // Allow explicit `any`s
+      "@typescript-eslint/no-explicit-any": "off",
+
+      // START: Allow implicit `any`s
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      // END: Allow implicit `any`s
 
       // Allow async functions without await
       // for consistency (esp. Convex `handler`s)
       "@typescript-eslint/require-await": "off",
+
+      "import/order": [
+        "error",
+        {
+          alphabetize: { order: "asc", caseInsensitive: true },
+          named: { enabled: true },
+          "newlines-between": "always",
+          pathGroups: ["@/*"]
+            .map((pattern) => ({
+              pattern,
+              group: "internal",
+              position: "after",
+            }))
+            .concat([
+              { pattern: "react", group: "external", position: "before" },
+            ]),
+          pathGroupsExcludedImportTypes: ["builtin"],
+          groups: [
+            "builtin",
+            "external",
+            "internal",
+            "parent",
+            "sibling",
+            "index",
+          ],
+        },
+      ],
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: ["components", "lib", "views"].flatMap((path) => [
+            // Use public API only
+            `@/${path}/*/**`,
+            `../**/${path}`,
+          ]),
+        },
+      ],
     },
   },
 );

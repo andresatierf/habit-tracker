@@ -1,3 +1,7 @@
+import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
+
+import { useForm } from "@tanstack/react-form";
+
 import { Button } from "@/components/button";
 import {
   Dialog,
@@ -16,8 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/select";
-import { useForm } from "@tanstack/react-form";
-import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
 
 interface MetadataDialogProps {
   selectedCompletion: any;

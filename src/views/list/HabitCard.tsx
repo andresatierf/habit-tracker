@@ -1,8 +1,10 @@
 import { useMutation, useQuery } from "convex/react";
+
 import { Button } from "@/components/button";
-import type { Id } from "../../../convex/_generated/dataModel";
-import { api } from "../../../convex/_generated/api";
 import { cn } from "@/lib/utils";
+
+import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 
 interface HabitCardProps {
   habit: any;

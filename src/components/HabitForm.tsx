@@ -1,3 +1,9 @@
+import { useEffect, useState } from "react";
+
+import { useMutation, useQuery } from "convex/react";
+import { PlusCircle, XCircle } from "lucide-react";
+import { toast } from "sonner";
+
 import { Button } from "@/components/button";
 import {
   Dialog,
@@ -15,10 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/select";
-import { useMutation, useQuery } from "convex/react";
-import { PlusCircle, XCircle } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 
@@ -84,7 +87,7 @@ export function HabitForm({
   isOpen,
   onClose,
 }: HabitFormProps) {
-  const habit = useQuery(api.habits.getHabit, { habitId });
+  const habit = useQuery(api.habits.getHabit, habitId ? { habitId } : "skip");
   const [name, setName] = useState("");
   const [color, setColor] = useState(COLORS[0]);
   const [icon, setIcon] = useState(ICONS[0]);
@@ -196,7 +199,7 @@ export function HabitForm({
         );
       }
       onClose();
-    } catch (error) {
+    } catch {
       toast.error("Failed to save " + (parentId ? "sub-habit" : "habit"));
     } finally {
       setIsSubmitting(false);

@@ -1,14 +1,16 @@
 import { Authenticated, Unauthenticated, useQuery } from "convex/react";
+import { Toaster } from "sonner";
+
 import { api } from "../convex/_generated/api";
+
+import { HabitTracker } from "./components/HabitTracker";
 import { SignInForm } from "./SignInForm";
 import { SignOutButton } from "./SignOutButton";
-import { Toaster } from "sonner";
-import { HabitTracker } from "./components/HabitTracker";
 
 export default function App() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm h-16 flex justify-between items-center border-b shadow-sm px-4">
+    <div className="flex min-h-screen flex-col bg-gray-50">
+      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-white/80 px-4 shadow-sm backdrop-blur-sm">
         <h2 className="text-xl font-semibold text-primary">Habit Tracker</h2>
         <Authenticated>
           <SignOutButton />
@@ -27,21 +29,21 @@ function Content() {
 
   if (loggedInUser === undefined) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="size-8 animate-spin rounded-full border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="mx-auto max-w-6xl">
       <Authenticated>
         <HabitTracker />
       </Authenticated>
       <Unauthenticated>
-        <div className="flex flex-col items-center justify-center min-h-[400px] gap-8">
+        <div className="flex min-h-[400px] flex-col items-center justify-center gap-8">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-primary mb-4">Habit Tracker</h1>
+            <h1 className="mb-4 text-4xl font-bold text-primary">Habit Tracker</h1>
             <p className="text-xl text-secondary">Track your daily habits and build better routines</p>
           </div>
           <SignInForm />

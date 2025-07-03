@@ -1,5 +1,5 @@
+import { useQuery } from "convex/react";
 import { useEffect, useState } from "react";
-import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { HabitForm } from "../../components/HabitForm";
@@ -10,7 +10,7 @@ interface HabitListProps {
 }
 
 export function HabitList({ onEditHabit }: HabitListProps) {
-  const allHabits = useQuery(api.habits.getHabits, { includeSubHabits: true }) || [];
+  const allHabits = useQuery(api.habits.getHabits) || [];
 
   useEffect(() => {
     if (allHabits.length > 0) {
@@ -23,10 +23,9 @@ export function HabitList({ onEditHabit }: HabitListProps) {
     new Set(),
   );
   const [isHabitFormOpen, setIsHabitFormOpen] = useState(false);
-  const [habitFormParentId, setHabitFormParentId] = useState<Id<"habits"> | null>(null);
+  const [habitFormParentId, setHabitFormParentId] =
+    useState<Id<"habits"> | null>(null);
   const [editingHabit, setEditingHabit] = useState<any>(null);
-
-  const deleteHabit = useMutation(api.habits.deleteHabit);
 
   const toggleExpanded = (habitId: Id<"habits">) => {
     const newExpanded = new Set(expandedHabits);
@@ -38,25 +37,9 @@ export function HabitList({ onEditHabit }: HabitListProps) {
     setExpandedHabits(newExpanded);
   };
 
-  const handleDeleteHabit = async (habitId: Id<"habits">) => {
-    if (
-      confirm(
-        "Are you sure you want to delete this habit? This will also delete all sub-habits.",
-      )
-    ) {
-      await deleteHabit({ habitId });
-    }
-  };
-
   const handleAddSubHabit = (parentId: Id<"habits">) => {
     setEditingHabit(null);
     setHabitFormParentId(parentId);
-    setIsHabitFormOpen(true);
-  };
-
-  const handleEditSubHabit = (subHabit: any) => {
-    setEditingHabit(subHabit);
-    setHabitFormParentId(subHabit.parentId);
     setIsHabitFormOpen(true);
   };
 
@@ -72,11 +55,8 @@ export function HabitList({ onEditHabit }: HabitListProps) {
         allHabits={allHabits}
         expandedHabits={expandedHabits}
         toggleExpanded={toggleExpanded}
-        onEditHabit={onEditHabit}
-        handleDeleteHabit={handleDeleteHabit}
-        handleAddSubHabit={handleAddSubHabit}
-        handleEditSubHabit={handleEditSubHabit}
-        handleDeleteSubHabit={handleDeleteHabit}
+        onAdd={handleAddSubHabit}
+        onEdit={onEditHabit}
       />
 
       <HabitForm

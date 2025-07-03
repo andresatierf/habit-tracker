@@ -1,34 +1,34 @@
 import { useState } from "react";
 import type { Id } from "../../convex/_generated/dataModel";
-import { HabitCalendar } from "../views/calendar/HabitCalendar";
-import { HeatmapCalendar } from "../views/heatmap/HeatmapCalendar";
 import { HabitList } from "../views/list/HabitList";
-import { HabitsTable } from "../views/table/HabitsTable";
 import { Button } from "./button";
-import { FilterPanel } from "./FilterPanel";
 import { HabitForm } from "./HabitForm";
+import { FilterPanel } from "./FilterPanel";
+import { HabitCalendar } from "@/views/calendar/HabitCalendar";
+import { HeatmapCalendar } from "@/views/heatmap/HeatmapCalendar";
+import { HabitsTable } from "@/views/table/HabitsTable";
 
 export function HabitTracker() {
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingHabit, setEditingHabit] = useState<any>(null);
+  const [editingHabit, setEditingHabit] = useState<Id<"habits">>();
   const [selectedHabits, setSelectedHabits] = useState<Id<"habits">[]>([]);
   const [viewMode, setViewMode] = useState<
     "calendar" | "list" | "table" | "heatmap"
   >("calendar");
 
   const handleAddHabit = () => {
-    setEditingHabit(null);
+    setEditingHabit(undefined);
     setIsFormOpen(true);
   };
 
-  const handleEditHabit = (habit: any) => {
-    setEditingHabit(habit);
+  const handleEditHabit = (habitId: Id<"habits">) => {
+    setEditingHabit(habitId);
     setIsFormOpen(true);
   };
 
   const handleCloseForm = () => {
     setIsFormOpen(false);
-    setEditingHabit(null);
+    setEditingHabit(undefined);
   };
 
   const getViewModeButton = (
@@ -81,7 +81,7 @@ export function HabitTracker() {
       {/* Habit Form Modal */}
       <HabitForm
         isOpen={isFormOpen}
-        habit={editingHabit}
+        habitId={editingHabit}
         onClose={handleCloseForm}
       />
     </div>

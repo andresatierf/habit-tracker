@@ -81,6 +81,23 @@ export const createHabit = mutation({
   },
 });
 
+// Get habit
+export const getHabit = query({
+  args: { habitId: v.optional(v.id("habits")) },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId || !args.habitId) return null;
+
+    const habit = await ctx.db
+      .query("habits")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .filter((q) => q.eq(q.field("_id"), args.habitId))
+      .first();
+
+    return habit;
+  },
+});
+
 // Update a habit
 export const updateHabit = mutation({
   args: {

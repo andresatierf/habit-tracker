@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/select";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { PlusCircle, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -23,7 +23,7 @@ import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 
 interface HabitFormProps {
-  habit?: any;
+  habitId?: Id<"habits">;
   parentId?: Id<"habits">;
   isOpen: boolean;
   onClose: () => void;
@@ -79,11 +79,12 @@ type MetadataField = {
 };
 
 export function HabitForm({
-  habit,
+  habitId,
   parentId,
   isOpen,
   onClose,
 }: HabitFormProps) {
+  const habit = useQuery(api.habits.getHabit, { habitId });
   const [name, setName] = useState("");
   const [color, setColor] = useState(COLORS[0]);
   const [icon, setIcon] = useState(ICONS[0]);
@@ -372,7 +373,7 @@ export function HabitForm({
 
           {/* Preview */}
           <div className="rounded-md bg-gray-50 p-3">
-            <div className="items-.center flex gap-3">
+            <div className="flex items-center gap-3">
               <div
                 className="size-4 rounded-full"
                 style={{ backgroundColor: color }}

@@ -1,5 +1,15 @@
-import { useState, useMemo } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/select";
+import { cn, generateDateRange } from "@/lib/utils";
+import { Temporal } from "@js-temporal/polyfill";
 import { useQuery } from "convex/react";
+import { useCallback, useMemo, useState } from "react";
+import tinycolor from "tinycolor2";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 
@@ -8,35 +18,20 @@ interface HeatmapCalendarProps {
 }
 
 export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState(
+    Temporal.Now.plainDateISO().year,
+  );
 
-  const allHabits = useQuery(api.habits.getHabits, { includeSubHabits: true }) || [];
+  const allHabits =
+    useQuery(api.habits.getHabits, { includeSubHabits: true }) || [];
 
   // Generate date range for the entire year
   const dateRange = useMemo(() => {
-    const startDate = new Date(selectedYear, 0, 1);
-    const endDate = new Date(selectedYear, 11, 31);
-
-    // Start from the Sunday before the first day of the year
-    const firstSunday = new Date(startDate);
-    firstSunday.setDate(startDate.getDate() - startDate.getDay() + 1);
-
-    // End on the Saturday after the last day of the year
-    const lastSaturday = new Date(endDate);
-    lastSaturday.setDate(endDate.getDate() + (6 - endDate.getDay() + 1));
-
-    const dates = [];
-    const current = new Date(firstSunday);
-    while (current <= lastSaturday) {
-      dates.push(new Date(current));
-      current.setDate(current.getDate() + 1);
-    }
-
-    return {
-      dates,
-      startDate: firstSunday.toISOString().split("T")[0],
-      endDate: lastSaturday.toISOString().split("T")[0],
-    };
+    return generateDateRange({
+      first: Temporal.PlainDate.from({ year: selectedYear, month: 1, day: 1 }),
+      last: Temporal.PlainDate.from({ year: selectedYear, month: 12, day: 31 }),
+      withWeekPadding: true,
+    });
   }, [selectedYear]);
 
   const completions =
@@ -53,40 +48,56 @@ export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
       : allHabits;
   }, [selectedHabits, allHabits]);
 
-  // Calculate completion intensity for each date
-  const getCompletionIntensity = (date: string) => {
-    const dateCompletions = completions.filter(
-      (c) => c.date === date && c.completed
-    );
-    const totalPossible = displayHabits.length;
+  const getDayColor = useCallback(
+    (date: string) => {
+      const dateCompletions = completions.filter(
+        (c) => c.date === date && c.completed,
+      );
 
-    if (totalPossible === 0) return 0;
+      if (dateCompletions.length === 0) {
+        return "#ebedf0"; // No activity
+      }
 
-    const completionRate = dateCompletions.length / totalPossible;
+      const habitColors = dateCompletions
+        .map((completion) => {
+          const habit = displayHabits.find((h) => h._id === completion.habitId);
+          return habit ? tinycolor(habit.color) : null;
+        })
+        .filter((color): color is tinycolor.Instance => color !== null);
 
-    // Return intensity level (0-4)
-    if (completionRate === 0) return 0;
-    if (completionRate <= 0.25) return 1;
-    if (completionRate <= 0.5) return 2;
-    if (completionRate <= 0.75) return 3;
-    return 4;
-  };
+      if (habitColors.length === 0) {
+        return "#ebedf0";
+      }
 
-  const getIntensityColor = (intensity: number) => {
-    const colors = [
-      "#ebedf0", // 0 - no activity
-      "#9be9a8", // 1 - low activity
-      "#40c463", // 2 - medium activity
-      "#30a14e", // 3 - high activity
-      "#216e39", // 4 - very high activity
-    ];
-    return colors[intensity];
-  };
+      if (habitColors.length === 1) {
+        return habitColors[0].toHexString();
+      }
 
-  const getTooltipText = (date: string, intensity: number) => {
+      // Blend colors by averaging their RGB values
+      let totalR = 0;
+      let totalG = 0;
+      let totalB = 0;
+
+      habitColors.forEach((color) => {
+        const rgb = color.toRgb();
+        totalR += rgb.r;
+        totalG += rgb.g;
+        totalB += rgb.b;
+      });
+
+      const avgR = Math.round(totalR / habitColors.length);
+      const avgG = Math.round(totalG / habitColors.length);
+      const avgB = Math.round(totalB / habitColors.length);
+
+      return tinycolor({ r: avgR, g: avgG, b: avgB }).toHexString();
+    },
+    [completions, displayHabits],
+  );
+
+  const getTooltipText = (date: string) => {
     const dateObj = new Date(date);
     const dateCompletions = completions.filter(
-      (c) => c.date === date && c.completed
+      (c) => c.date === date && c.completed,
     );
     const totalPossible = displayHabits.length;
 
@@ -110,27 +121,25 @@ export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
   // Calculate stats
   const stats = useMemo(() => {
     const yearDates = dateRange.dates.filter(
-      (date) => date.getFullYear() === selectedYear
+      (date) => date.year === selectedYear,
     );
     const totalDays = yearDates.length;
     const activeDays = yearDates.filter((date) => {
-      const dateString = date.toISOString().split("T")[0];
-      return getCompletionIntensity(dateString) > 0;
+      const dateString = date.toString();
+      return getDayColor(dateString) !== "#ebedf0";
     }).length;
 
     const currentStreak = (() => {
       let streak = 0;
-      const today = new Date();
-      const current = new Date(today);
+      let current = Temporal.Now.plainDateISO();
 
-      while (current >= yearDates[0]) {
-        const dateString = current.toISOString().split("T")[0];
-        if (getCompletionIntensity(dateString) > 0) {
+      while (Temporal.PlainDate.compare(current, yearDates[0]) > 0) {
+        if (getDayColor(current.toString()) !== "#ebedf0") {
           streak++;
         } else {
           break;
         }
-        current.setDate(current.getDate() - 1);
+        current = current.subtract({ days: 1 });
       }
 
       return streak;
@@ -143,7 +152,7 @@ export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
       completionRate:
         totalDays > 0 ? Math.round((activeDays / totalDays) * 100) : 0,
     };
-  }, [dateRange.dates, selectedYear, completions, displayHabits]);
+  }, [dateRange.dates, selectedYear, getDayColor]);
 
   const availableYears = useMemo(() => {
     const currentYear = new Date().getFullYear();
@@ -174,17 +183,21 @@ export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
               {stats.currentStreak} days
             </span>
           </div>
-          <select
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-            className="rounded-md border border-gray-300 px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <Select
+            value={selectedYear.toString()}
+            onValueChange={(value) => setSelectedYear(parseInt(value))}
           >
-            {availableYears.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Select Year" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableYears.map((year) => (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -221,7 +234,7 @@ export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
               >
                 {index % 2 === 1 ? day : ""}
               </div>
-            )
+            ),
           )}
         </div>
 
@@ -231,23 +244,26 @@ export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
           <div className="flex gap-1">
             {weeks.map((week, weekIndex) => (
               <div key={weekIndex} className="flex flex-col gap-1">
-                {week.map((date, dayIndex) => {
-                  const dateString = date.toISOString().split("T")[0];
-                  const intensity = getCompletionIntensity(dateString);
-                  const isCurrentYear = date.getFullYear() === selectedYear;
+                {week.map((date) => {
+                  const dateString = date.toString();
+                  const color = getDayColor(dateString);
+                  const isCurrentYear = date.year === selectedYear;
+                  const today = Temporal.Now.plainDateISO().toString();
 
                   return (
                     <div
                       key={dateString}
-                      className={`size-3 rounded-sm border border-gray-200 ${
-                        !isCurrentYear ? "opacity-30" : ""
-                      }`}
+                      className={cn(
+                        "size-3 rounded-sm border border-gray-200",
+                        {
+                          "border-blue-500": dateString === today,
+                          "opacity-30": !isCurrentYear,
+                        },
+                      )}
                       style={{
-                        backgroundColor: isCurrentYear
-                          ? getIntensityColor(intensity)
-                          : "#f3f4f6",
+                        backgroundColor: isCurrentYear ? color : "#f3f4f6",
                       }}
-                      title={getTooltipText(dateString, intensity)}
+                      title={getTooltipText(dateString)}
                     />
                   );
                 })}
@@ -262,11 +278,12 @@ export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
         <div className="flex items-center gap-2 text-xs text-gray-600">
           <span>Less</span>
           <div className="flex gap-1">
-            {[0, 1, 2, 3, 4].map((intensity) => (
+            {displayHabits.map((habit) => (
               <div
-                key={intensity}
+                key={habit._id}
                 className="size-3 rounded-sm border border-gray-200"
-                style={{ backgroundColor: getIntensityColor(intensity) }}
+                style={{ backgroundColor: habit.color }}
+                title={habit.name}
               />
             ))}
           </div>

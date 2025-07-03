@@ -1,10 +1,11 @@
 import { Button } from "@/components/button";
+import { Temporal } from "@js-temporal/polyfill";
 import React from "react";
 
 interface CalendarHeaderProps {
-  currentDate: Date;
+  currentDate: Temporal.PlainDate;
   navigateMonth: (direction: "prev" | "next") => void;
-  setCurrentDate: React.Dispatch<React.SetStateAction<Date>>;
+  setCurrentDate: React.Dispatch<React.SetStateAction<Temporal.PlainDate>>;
 }
 
 export function CalendarHeader({
@@ -15,7 +16,7 @@ export function CalendarHeader({
   return (
     <div className="mb-6 flex items-center justify-between">
       <h2 className="text-xl font-semibold text-gray-900">
-        {currentDate.toLocaleDateString("en-US", {
+        {currentDate.toLocaleString("en-US", {
           month: "long",
           year: "numeric",
         })}
@@ -24,7 +25,10 @@ export function CalendarHeader({
         <Button onClick={() => navigateMonth("prev")} variant="outline">
           ←
         </Button>
-        <Button onClick={() => setCurrentDate(new Date())} variant="outline">
+        <Button
+          onClick={() => setCurrentDate(Temporal.Now.plainDateISO())}
+          variant="outline"
+        >
           Today
         </Button>
         <Button onClick={() => navigateMonth("next")} variant="outline">

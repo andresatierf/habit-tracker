@@ -5,6 +5,8 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { CalendarGrid } from "./CalendarGrid";
 import { CalendarHeader } from "./CalendarHeader";
 import { MetadataDialog } from "../../components/MetadataDialog";
+import { Temporal } from "@js-temporal/polyfill";
+import { generateDateRange } from "@/lib/utils";
 
 interface HabitCalendarProps {
   selectedHabits: Id<"habits">[];
@@ -17,10 +19,11 @@ type MetadataField = {
 };
 
 export function HabitCalendar({ selectedHabits }: HabitCalendarProps) {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(Temporal.Now.plainDateISO());
   const [selectedCompletion, setSelectedCompletion] = useState<any>(null);
 
-  const allHabits = useQuery(api.habits.getHabits, { includeSubHabits: true }) || [];
+  const allHabits =
+    useQuery(api.habits.getHabits, { includeSubHabits: true }) || [];
 
   const toggleCompletion = useMutation(api.completions.toggleCompletion);
 
@@ -37,29 +40,14 @@ export function HabitCalendar({ selectedHabits }: HabitCalendarProps) {
 
   // Generate date range for the current month
   const dateRange = useMemo(() => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-
-    const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay()); // Start from Sunday
-
-    const endDate = new Date(lastDay);
-    endDate.setDate(endDate.getDate() + (6 - lastDay.getDay())); // End on Saturday
-
-    const dates = [];
-    const current = new Date(startDate);
-    while (current <= endDate) {
-      dates.push(new Date(current));
-      current.setDate(current.getDate() + 1);
-    }
-
-    return {
-      dates,
-      startDate: startDate.toISOString().split("T")[0],
-      endDate: endDate.toISOString().split("T")[0],
-    };
+    return generateDateRange({
+      first: currentDate.with({ day: 1 }),
+      last: currentDate
+        .with({ day: 1 })
+        .add({ months: 1 })
+        .subtract({ days: 1 }),
+      withWeekPadding: true,
+    });
   }, [currentDate]);
 
   const completions =
@@ -124,19 +112,20 @@ export function HabitCalendar({ selectedHabits }: HabitCalendarProps) {
 
   const navigateMonth = (direction: "prev" | "next") => {
     setCurrentDate((prev) => {
-      const newDate = new Date(prev);
-      newDate.setMonth(newDate.getMonth() + (direction === "next" ? 1 : -1));
+      const newDate = Temporal.PlainDate.from(prev).add(
+        Temporal.Duration.from({ months: direction === "next" ? 1 : -1 }),
+      );
       return newDate;
     });
   };
 
-  const isCurrentMonth = (date: Date) => {
-    return date.getMonth() === currentDate.getMonth();
+  const isCurrentMonth = (date: Temporal.PlainDate) => {
+    return date.month === currentDate.month;
   };
 
-  const isToday = (date: Date) => {
-    const today = new Date();
-    return date.toDateString() === today.toDateString();
+  const isToday = (date: Temporal.PlainDate) => {
+    const today = Temporal.Now.plainDateISO();
+    return date.toString() === today.toString();
   };
 
   return (

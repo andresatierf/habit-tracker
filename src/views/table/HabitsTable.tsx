@@ -2,10 +2,11 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 
 export function HabitsTable() {
-  const allHabits = useQuery(api.habits.getHabits, { includeSubHabits: true }) || [];
+  const allHabits =
+    useQuery(api.habits.getHabits, { includeSubHabits: true }) || [];
 
   const topLevelHabits = allHabits.filter(
-    (habit) => habit.parentId === undefined
+    (habit) => habit.parentId === undefined,
   );
 
   return (
@@ -79,10 +80,10 @@ export function HabitsTable() {
                   {/* Sub-habits Rows */}
                   {allHabits
                     .filter((sh) => sh.parentId === habit._id)
-                    .map((subHabit: any) => (
+                    .map((subHabit) => (
                       <tr
                         key={subHabit._id}
-                        className="bg-gray-25 hover:bg-gray-50"
+                        className="bg-gray-50 hover:bg-gray-100"
                       >
                         <td className="whitespace-nowrap px-6 py-4">
                           <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">

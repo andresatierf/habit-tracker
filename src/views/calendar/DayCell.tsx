@@ -1,9 +1,9 @@
+import { Temporal } from "@js-temporal/polyfill";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { HabitCompletionButton } from "../../components/HabitCompletionButton";
 
 interface DayCellProps {
-  dateString: string;
-  dayNumber: number;
+  date: Temporal.PlainDate;
   isCurrentMonth: boolean;
   isToday: boolean;
   displayHabits: any[];
@@ -18,8 +18,7 @@ interface DayCellProps {
 }
 
 export function DayCell({
-  dateString,
-  dayNumber,
+  date,
   isCurrentMonth,
   isToday,
   displayHabits,
@@ -27,9 +26,11 @@ export function DayCell({
   handleOpenDialog,
   toggleCompletion,
 }: DayCellProps) {
+  const dateString = date.toString();
+
   return (
     <div
-      key={dateString}
+      key={date.toString()}
       className={`min-h-[120px] border border-gray-100 p-1 ${
         !isCurrentMonth ? "bg-gray-50" : "bg-white"
       } ${isToday ? "ring-2 ring-blue-500" : ""}`}
@@ -39,13 +40,13 @@ export function DayCell({
           !isCurrentMonth ? "text-gray-400" : "text-gray-900"
         }`}
       >
-        {dayNumber}
+        {date.day}
       </div>
 
       <div className="space-y-1">
         {/* Habits */}
         {displayHabits.map((habit) => {
-          const completion = getCompletionForDate(dateString, habit._id);
+          const completion = getCompletionForDate(date.toString(), habit._id);
           const isCompleted = completion?.completed || false;
 
           return (
@@ -59,7 +60,7 @@ export function DayCell({
                 onClick={async (id) => {
                   if (isCompleted) {
                     await toggleCompletion({
-                      date: dateString,
+                      date: date.toString(),
                       habitId: id,
                       completed: false,
                       metadata: completion?.metadata,

@@ -54,7 +54,6 @@ export function MetadataDialog({
   const validateField = useCallback(
     (fieldSchema) =>
       ({ value }) => {
-        console.log({ fieldSchema, value });
         if (fieldSchema.type === "text" && !value) {
           return "This field is required";
         }

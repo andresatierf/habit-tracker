@@ -1,5 +1,8 @@
 "use client";
 import { useState } from "react";
+import { Input } from "@/components/input";
+import { Button } from "@/components/button";
+import { Label } from "@/components/label";
 
 import { useAuthActions } from "@convex-dev/auth/react";
 import { toast } from "sonner";
@@ -33,36 +36,38 @@ export function SignInForm() {
           });
         }}
       >
-        <input
-          className="auth-input-field"
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
           type="email"
           name="email"
           placeholder="Email"
           required
         />
-        <input
-          className="auth-input-field"
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
           type="password"
           name="password"
           placeholder="Password"
           required
         />
-        <button className="auth-button" type="submit" disabled={submitting}>
+        <Button type="submit" disabled={submitting}>
           {flow === "signIn" ? "Sign in" : "Sign up"}
-        </button>
+        </Button>
         <div className="text-center text-sm text-secondary">
           <span>
             {flow === "signIn"
               ? "Don't have an account? "
               : "Already have an account? "}
           </span>
-          <button
+          <Button
+            variant="link"
             type="button"
-            className="hover:text-primary-hover cursor-pointer font-medium text-primary hover:underline"
             onClick={() => setFlow(flow === "signIn" ? "signUp" : "signIn")}
           >
             {flow === "signIn" ? "Sign up instead" : "Sign in instead"}
-          </button>
+          </Button>
         </div>
       </form>
       <div className="my-3 flex items-center justify-center">
@@ -70,9 +75,9 @@ export function SignInForm() {
         <span className="mx-4 text-secondary">or</span>
         <hr className="my-4 grow border-gray-200" />
       </div>
-      <button className="auth-button" onClick={() => void signIn("anonymous")}>
+      <Button onClick={() => void signIn("anonymous")}>
         Sign in anonymously
-      </button>
+      </Button>
     </div>
   );
 }

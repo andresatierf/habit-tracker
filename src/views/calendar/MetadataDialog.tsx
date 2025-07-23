@@ -1,8 +1,9 @@
-import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 import { useForm } from "@tanstack/react-form";
+import { useMutation } from "convex/react";
 
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -10,22 +11,19 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/dialog";
-import { Input } from "@/components/input";
-import { Label } from "@/components/label";
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/select";
+} from "@/components/ui/select";
+import { useStore } from "@/lib/store";
 
-interface MetadataDialogProps {
-  selectedCompletion: any;
-  setSelectedCompletion: Dispatch<SetStateAction<any>>;
-  onSave: (metadata: Record<string, any>) => Promise<void>;
-}
+import { api } from "../../../convex/_generated/api";
 
 type MetadataField = {
   name: string;
@@ -33,25 +31,27 @@ type MetadataField = {
   options?: string[];
 };
 
-export function MetadataDialog({
-  selectedCompletion,
-  setSelectedCompletion,
-  onSave,
-}: MetadataDialogProps) {
+export function MetadataDialog() {
+  const completionMetadata = useStore((state) => state.completionMetadata);
+  const setCompletionMetadata = useStore(
+    (state) => state.setCompletionMetadata,
+  );
+
+  const toggleCompletion = useMutation(api.completions.toggleCompletion);
+
   const form = useForm({
     defaultValues: {},
     onSubmit: async ({ value }) => {
       await onSave(value);
-      setSelectedCompletion(null);
+      setCompletionMetadata(null);
       form.reset();
     },
   });
 
   useEffect(() => {
-    if (selectedCompletion) {
-      form.reset(selectedCompletion.existingMetadata);
-    }
-  }, [selectedCompletion, form]);
+    if (!completionMetadata) return;
+    form.reset(completionMetadata.existingMetadata);
+  }, [completionMetadata, form]);
 
   const validateField = useCallback(
     (fieldSchema) =>
@@ -73,11 +73,25 @@ export function MetadataDialog({
     [],
   );
 
+  const onSave = useCallback(
+    async (metadata: Record<string, any>) => {
+      if (!completionMetadata) return;
+
+      await toggleCompletion({
+        date: completionMetadata.date,
+        habitId: completionMetadata.habitId,
+        completed: completionMetadata.completed,
+        metadata: metadata,
+      });
+    },
+    [completionMetadata, toggleCompletion],
+  );
+
   return (
     <Dialog
-      open={!!selectedCompletion}
+      open={!!completionMetadata}
       onOpenChange={() => {
-        setSelectedCompletion(null);
+        setCompletionMetadata(null);
         form.reset();
       }}
     >
@@ -93,7 +107,7 @@ export function MetadataDialog({
           }}
         >
           <div className="space-y-4 py-4">
-            {selectedCompletion?.metadataSchema.map(
+            {completionMetadata?.metadataSchema?.map(
               (fieldSchema: MetadataField) => (
                 <form.Field
                   key={fieldSchema.name}
@@ -171,7 +185,7 @@ export function MetadataDialog({
                           </Select>
                         )}
                         {errors && (
-                          <p className="mt-1 text-sm text-red-500">
+                          <p className="mt-1 text-sm text-destructive">
                             {errors.join(", ")}
                           </p>
                         )}
@@ -184,7 +198,7 @@ export function MetadataDialog({
           </div>
           <DialogFooter>
             {form.state.meta?.errors && form.state.meta.errors.length > 0 && (
-              <div className="mt-2 text-sm text-red-500">
+              <div className="mt-2 text-sm text-destructive">
                 {form.state.meta.errors.map((error, index) => (
                   <p key={index}>{error}</p>
                 ))}

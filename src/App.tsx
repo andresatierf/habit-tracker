@@ -10,9 +10,9 @@ import { SignOutButton } from "./SignOutButton";
 
 export default function App() {
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-white/80 px-4 shadow-sm backdrop-blur-sm">
-        <h2 className="text-xl font-semibold text-primary">Habit Tracker</h2>
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background-foreground px-4 shadow-sm backdrop-blur-sm">
+        <h2 className="text-xl font-semibold text-text">Habit Tracker</h2>
         <Authenticated>
           <div className="flex items-center gap-2">
             <ModeToggle />

@@ -1,47 +1,49 @@
 import { useQuery } from "convex/react";
 
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/button";
+import { useStore } from "@/lib/store";
 
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 
-interface FilterPanelProps {
-  selectedHabits: Id<"habits">[];
-  onHabitsChange: (habits: Id<"habits">[]) => void;
-}
-
-export function FilterPanel({
-  selectedHabits,
-  onHabitsChange,
-}: FilterPanelProps) {
+export function FilterPanel() {
   const allHabits =
     useQuery(api.habits.getHabits, { includeSubHabits: true }) || [];
+  const filteredHabits = useStore((state) => state.filters.habits);
+  const setFilteredHabits = useStore((state) => state.setFilterHabits);
 
   const topLevelHabits = allHabits.filter(
     (habit) => habit.parentId === undefined,
   );
 
   const handleHabitToggle = (habitId: Id<"habits">) => {
-    if (selectedHabits.includes(habitId)) {
-      onHabitsChange(selectedHabits.filter((id) => id !== habitId));
+    if (filteredHabits.includes(habitId)) {
+      setFilteredHabits(filteredHabits.filter((id) => id !== habitId));
     } else {
-      onHabitsChange([...selectedHabits, habitId]);
+      setFilteredHabits([...filteredHabits, habitId]);
     }
   };
 
   const clearAllFilters = () => {
-    onHabitsChange([]);
+    setFilteredHabits([]);
   };
 
   const selectAllHabits = () => {
-    onHabitsChange(allHabits.map((h) => h._id));
+    setFilteredHabits(allHabits.map((h) => h._id));
   };
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
-        <div className="flex gap-2">
+        {filteredHabits.length > 0 && (
+          <div className="ml-4 border-l border-gray-200 pl-4">
+            <p className="text-sm text-gray-600">
+              Showing {filteredHabits.length} selected habits
+            </p>
+          </div>
+        )}
+        <div className="flex grow justify-end gap-2">
           <Button
             onClick={selectAllHabits}
             variant="filterPrimary"
@@ -69,7 +71,7 @@ export function FilterPanel({
                 <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="checkbox"
-                    checked={selectedHabits.includes(habit._id)}
+                    checked={filteredHabits.includes(habit._id)}
                     onChange={() => handleHabitToggle(habit._id)}
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
@@ -92,7 +94,7 @@ export function FilterPanel({
                         >
                           <input
                             type="checkbox"
-                            checked={selectedHabits.includes(subHabit._id)}
+                            checked={filteredHabits.includes(subHabit._id)}
                             onChange={() => handleHabitToggle(subHabit._id)}
                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
@@ -113,15 +115,6 @@ export function FilterPanel({
           </div>
         </div>
       </div>
-
-      {/* Active Filters Summary */}
-      {selectedHabits.length > 0 && (
-        <div className="mt-4 border-t border-gray-200 pt-4">
-          <p className="text-sm text-gray-600">
-            Showing {selectedHabits.length} selected habits
-          </p>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,20 +1,24 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 import { Temporal } from "@js-temporal/polyfill";
 
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/button";
+import { useStore } from "@/lib/store";
 
-interface CalendarHeaderProps {
-  currentDate: Temporal.PlainDate;
-  navigateMonth: (direction: "prev" | "next") => void;
-  setCurrentDate: React.Dispatch<React.SetStateAction<Temporal.PlainDate>>;
-}
+export function CalendarHeader() {
+  const currentDate = useStore((state) => state.date);
+  const setCurrentDate = useStore((state) => state.setDate);
 
-export function CalendarHeader({
-  currentDate,
-  navigateMonth,
-  setCurrentDate,
-}: CalendarHeaderProps) {
+  const onNavigate = useCallback(
+    (direction: "prev" | "next") => {
+      const newDate = Temporal.PlainDate.from(currentDate).add(
+        Temporal.Duration.from({ months: direction === "next" ? 1 : -1 }),
+      );
+      setCurrentDate(newDate);
+    },
+    [currentDate, setCurrentDate],
+  );
+
   return (
     <div className="mb-6 flex items-center justify-between">
       <h2 className="text-xl font-semibold text-gray-900">
@@ -24,7 +28,7 @@ export function CalendarHeader({
         })}
       </h2>
       <div className="flex gap-2">
-        <Button onClick={() => navigateMonth("prev")} variant="outline">
+        <Button onClick={() => onNavigate("prev")} variant="outline">
           ←
         </Button>
         <Button
@@ -33,7 +37,7 @@ export function CalendarHeader({
         >
           Today
         </Button>
-        <Button onClick={() => navigateMonth("next")} variant="outline">
+        <Button onClick={() => onNavigate("next")} variant="outline">
           →
         </Button>
       </div>

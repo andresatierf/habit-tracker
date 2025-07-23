@@ -10,19 +10,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/select";
+} from "@/components/ui/select";
+import { useStore } from "@/lib/store";
 import { cn, generateDateRange } from "@/lib/utils";
 
-
-
 import { api } from "../../../convex/_generated/api";
-import type { Id } from "../../../convex/_generated/dataModel";
 
-interface HeatmapCalendarProps {
-  selectedHabits: Id<"habits">[];
-}
-
-export function HeatmapCalendar({ selectedHabits }: HeatmapCalendarProps) {
+export function HeatmapCalendar() {
+  const selectedHabits = useStore((state) => state.filters.habits);
   const [selectedYear, setSelectedYear] = useState(
     Temporal.Now.plainDateISO().year,
   );

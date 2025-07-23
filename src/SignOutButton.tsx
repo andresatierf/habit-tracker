@@ -2,7 +2,7 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useConvexAuth } from "convex/react";
 
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/button";
 
 export function SignOutButton() {
   const { isAuthenticated } = useConvexAuth();

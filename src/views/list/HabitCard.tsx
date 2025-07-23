@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "convex/react";
 
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { api } from "../../../convex/_generated/api";
@@ -28,9 +28,9 @@ export function HabitCard({
   const deleteHabit = useMutation(api.habits.deleteHabit);
 
   const cardClasses = cn(
-    "rounded-lg border border-gray-200 bg-white shadow-sm", // Default for top-level habits
+    "rounded-lg border border-gray-200 bg-white shadow-sm",
     {
-      "bg-gray-50 border-none shadow-none": isSubHabit, // Override for sub-habits
+      "bg-gray-50 border-none shadow-none": isSubHabit,
     },
   );
 

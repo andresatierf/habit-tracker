@@ -2,19 +2,18 @@ import { useState } from "react";
 
 import { HabitCalendar } from "@/views/calendar/HabitCalendar";
 import { HeatmapCalendar } from "@/views/heatmap/HeatmapCalendar";
+import { HabitList } from "@/views/list/HabitList";
 import { HabitsTable } from "@/views/table/HabitsTable";
 
 import type { Id } from "../../convex/_generated/dataModel";
-import { HabitList } from "../views/list/HabitList";
 
-import { Button } from "./button";
 import { FilterPanel } from "./FilterPanel";
 import { HabitForm } from "./HabitForm";
+import { Button } from "./ui/button";
 
 export function HabitTracker() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Id<"habits">>();
-  const [selectedHabits, setSelectedHabits] = useState<Id<"habits">[]>([]);
   const [viewMode, setViewMode] = useState<
     "calendar" | "list" | "table" | "heatmap"
   >("calendar");
@@ -61,21 +60,12 @@ export function HabitTracker() {
       </div>
 
       {/* Filter Panel - show for calendar and heatmap views */}
-      {(viewMode === "calendar" || viewMode === "heatmap") && (
-        <FilterPanel
-          selectedHabits={selectedHabits}
-          onHabitsChange={setSelectedHabits}
-        />
-      )}
+      {(viewMode === "calendar" || viewMode === "heatmap") && <FilterPanel />}
 
       {/* Main Content */}
-      {viewMode === "calendar" && (
-        <HabitCalendar selectedHabits={selectedHabits} />
-      )}
+      {viewMode === "calendar" && <HabitCalendar />}
 
-      {viewMode === "heatmap" && (
-        <HeatmapCalendar selectedHabits={selectedHabits} />
-      )}
+      {viewMode === "heatmap" && <HeatmapCalendar />}
 
       {viewMode === "list" && <HabitList onEditHabit={handleEditHabit} />}
 

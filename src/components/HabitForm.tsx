@@ -12,8 +12,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  EmojiPicker,
+  EmojiPickerContent,
+  EmojiPickerSearch,
+} from "@/components/ui/emoji-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -254,24 +264,24 @@ export function HabitForm({
           {/* Icon */}
           <div>
             <Label>Icon</Label>
-            <div className="grid grid-cols-10 gap-2">
-              {ICONS.map((iconOption) => (
-                <Button
-                  key={iconOption}
-                  type="button"
-                  onClick={() => setIcon(iconOption)}
-                  className={`flex size-8 items-center justify-center rounded border-2 text-lg ${
-                    icon === iconOption
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-300"
-                  }`}
-                  variant="outline"
-                  size="icon"
-                >
-                  {iconOption}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="icon" className="font-normal">
+                  <span className="text-lg">{icon}</span>
                 </Button>
-              ))}
-            </div>
+              </PopoverTrigger>
+              <PopoverContent className="h-96 w-auto border-0 p-4">
+                <EmojiPicker
+                  onEmojiSelect={(emoji) => setIcon(emoji.emoji)}
+                  // icons={ICONS}
+                >
+                  <div className="flex items-center border-b px-3">
+                    <EmojiPickerSearch />
+                  </div>
+                  <EmojiPickerContent />
+                </EmojiPicker>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Metadata Fields */}

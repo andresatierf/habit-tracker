@@ -3,8 +3,8 @@ import { useCallback, useMemo } from "react";
 import { Temporal } from "@js-temporal/polyfill";
 import { useMutation, useQuery } from "convex/react";
 
-import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { useStore } from "@/shared/store";
 
 import { api } from "../../../convex/_generated/api";
 import type { Doc, Id } from "../../../convex/_generated/dataModel";
@@ -18,7 +18,7 @@ interface DayCellProps {
 
 export function DayCell({ date, onOpen }: DayCellProps) {
   const filteredHabits = useStore((store) => store.filters.habits);
-  const currentDate = useStore((store) => store.date);
+  const currentDate = useStore((store) => store.calendar.date);
   const isCurrentMonth = date.month === currentDate.month;
 
   const allHabits =

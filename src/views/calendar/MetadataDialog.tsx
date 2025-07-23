@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useStore } from "@/lib/store";
+import { useStore } from "@/shared/store";
 
 import { api } from "../../../convex/_generated/api";
 
@@ -32,9 +32,9 @@ type MetadataField = {
 };
 
 export function MetadataDialog() {
-  const completionMetadata = useStore((state) => state.completionMetadata);
+  const completionMetadata = useStore((state) => state.completion.metadata);
   const setCompletionMetadata = useStore(
-    (state) => state.setCompletionMetadata,
+    (state) => state.completion.setMetadata,
   );
 
   const toggleCompletion = useMutation(api.completions.toggleCompletion);
@@ -50,7 +50,7 @@ export function MetadataDialog() {
 
   useEffect(() => {
     if (!completionMetadata) return;
-    form.reset(completionMetadata.existingMetadata);
+    form.reset(completionMetadata.initial);
   }, [completionMetadata, form]);
 
   const validateField = useCallback(
@@ -107,94 +107,92 @@ export function MetadataDialog() {
           }}
         >
           <div className="space-y-4 py-4">
-            {completionMetadata?.metadataSchema?.map(
-              (fieldSchema: MetadataField) => (
-                <form.Field
-                  key={fieldSchema.name}
-                  name={fieldSchema.name}
-                  validators={{
-                    onChange: validateField(fieldSchema),
-                    onBlur: validateField(fieldSchema),
-                  }}
-                >
-                  {({
-                    name,
-                    state: {
-                      value,
-                      meta: { errors },
-                    },
-                    handleChange,
-                    handleBlur,
-                  }) => {
-                    return (
-                      <div key={name}>
-                        <Label htmlFor={name}>{fieldSchema.name}</Label>
-                        {fieldSchema.type === "text" && (
-                          <Input
-                            id={name}
-                            type="text"
-                            value={value || ""}
-                            onChange={(e) => handleChange(e.target.value)}
-                            onBlur={handleBlur}
-                          />
-                        )}
-                        {fieldSchema.type === "number" && (
-                          <Input
-                            id={name}
-                            type="number"
-                            value={value || 0}
-                            onChange={(e) =>
-                              handleChange(parseFloat(e.target.value))
-                            }
-                            onBlur={handleBlur}
-                          />
-                        )}
-                        {fieldSchema.type === "boolean" && (
-                          <input
-                            id={name}
-                            type="checkbox"
-                            checked={value || false}
-                            onChange={(e) => handleChange(e.target.checked)}
-                            onBlur={handleBlur}
-                          />
-                        )}
-                        {fieldSchema.type === "date" && (
-                          <Input
-                            id={name}
-                            type="date"
-                            value={value || ""}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
-                        )}
-                        {fieldSchema.type === "enum" && (
-                          <Select
-                            value={value || ""}
-                            onValueChange={handleChange}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select an option" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {fieldSchema.options?.map((option) => (
-                                <SelectItem key={option} value={option}>
-                                  {option}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                        {errors && (
-                          <p className="mt-1 text-sm text-destructive">
-                            {errors.join(", ")}
-                          </p>
-                        )}
-                      </div>
-                    );
-                  }}
-                </form.Field>
-              ),
-            )}
+            {completionMetadata?.schema?.map((fieldSchema: MetadataField) => (
+              <form.Field
+                key={fieldSchema.name}
+                name={fieldSchema.name}
+                validators={{
+                  onChange: validateField(fieldSchema),
+                  onBlur: validateField(fieldSchema),
+                }}
+              >
+                {({
+                  name,
+                  state: {
+                    value,
+                    meta: { errors },
+                  },
+                  handleChange,
+                  handleBlur,
+                }) => {
+                  return (
+                    <div key={name}>
+                      <Label htmlFor={name}>{fieldSchema.name}</Label>
+                      {fieldSchema.type === "text" && (
+                        <Input
+                          id={name}
+                          type="text"
+                          value={value || ""}
+                          onChange={(e) => handleChange(e.target.value)}
+                          onBlur={handleBlur}
+                        />
+                      )}
+                      {fieldSchema.type === "number" && (
+                        <Input
+                          id={name}
+                          type="number"
+                          value={value || 0}
+                          onChange={(e) =>
+                            handleChange(parseFloat(e.target.value))
+                          }
+                          onBlur={handleBlur}
+                        />
+                      )}
+                      {fieldSchema.type === "boolean" && (
+                        <input
+                          id={name}
+                          type="checkbox"
+                          checked={value || false}
+                          onChange={(e) => handleChange(e.target.checked)}
+                          onBlur={handleBlur}
+                        />
+                      )}
+                      {fieldSchema.type === "date" && (
+                        <Input
+                          id={name}
+                          type="date"
+                          value={value || ""}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                        />
+                      )}
+                      {fieldSchema.type === "enum" && (
+                        <Select
+                          value={value || ""}
+                          onValueChange={handleChange}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select an option" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {fieldSchema.options?.map((option) => (
+                              <SelectItem key={option} value={option}>
+                                {option}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                      {errors && (
+                        <p className="mt-1 text-sm text-destructive">
+                          {errors.join(", ")}
+                        </p>
+                      )}
+                    </div>
+                  );
+                }}
+              </form.Field>
+            ))}
           </div>
           <DialogFooter>
             {form.state.meta?.errors && form.state.meta.errors.length > 0 && (

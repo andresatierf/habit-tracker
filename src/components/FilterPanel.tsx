@@ -1,7 +1,7 @@
 import { useQuery } from "convex/react";
 
 import { Button } from "@/components/ui/button";
-import { useStore } from "@/lib/store";
+import { useStore } from "@/shared/store";
 
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -10,7 +10,7 @@ export function FilterPanel() {
   const allHabits =
     useQuery(api.habits.getHabits, { includeSubHabits: true }) || [];
   const filteredHabits = useStore((state) => state.filters.habits);
-  const setFilteredHabits = useStore((state) => state.setFilterHabits);
+  const setFilteredHabits = useStore((state) => state.filters.setHabits);
 
   const topLevelHabits = allHabits.filter(
     (habit) => habit.parentId === undefined,

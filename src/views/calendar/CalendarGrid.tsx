@@ -2,8 +2,8 @@ import { useMemo } from "react";
 
 import { useQuery } from "convex/react";
 
-import { useStore } from "@/lib/store";
 import { generateDateRange } from "@/lib/utils";
+import { useStore } from "@/shared/store";
 
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
@@ -19,10 +19,10 @@ type MetadataField = {
 };
 
 export function CalendarGrid() {
-  const currentDate = useStore((state) => state.date);
+  const currentDate = useStore((state) => state.calendar.date);
   const selectedHabits = useStore((state) => state.filters.habits);
   const setCompletionMetadata = useStore(
-    (store) => store.setCompletionMetadata,
+    (store) => store.completion.setMetadata,
   );
 
   const allHabits =
@@ -77,8 +77,8 @@ export function CalendarGrid() {
       date,
       habitId,
       completed: completion?.completed || true,
-      metadataSchema: initialMetadataSchema,
-      existingMetadata: initialMetadataValues,
+      schema: initialMetadataSchema,
+      initial: initialMetadataValues,
     });
   };
 

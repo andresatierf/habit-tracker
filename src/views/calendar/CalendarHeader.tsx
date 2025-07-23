@@ -3,11 +3,11 @@ import React, { useCallback } from "react";
 import { Temporal } from "@js-temporal/polyfill";
 
 import { Button } from "@/components/ui/button";
-import { useStore } from "@/lib/store";
+import { useStore } from "@/shared/store";
 
 export function CalendarHeader() {
-  const currentDate = useStore((state) => state.date);
-  const setCurrentDate = useStore((state) => state.setDate);
+  const currentDate = useStore((state) => state.calendar.date);
+  const setCurrentDate = useStore((state) => state.calendar.setDate);
 
   const onNavigate = useCallback(
     (direction: "prev" | "next") => {

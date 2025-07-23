@@ -11,8 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useStore } from "@/lib/store";
 import { cn, generateDateRange } from "@/lib/utils";
+import { useStore } from "@/shared/store";
 
 import { api } from "../../../convex/_generated/api";
 

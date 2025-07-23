@@ -9,7 +9,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 
 import { FilterPanel } from "./FilterPanel";
 import { HabitForm } from "./HabitForm";
-import { Button } from "./ui/button";
+import { Header } from "./Header";
 
 export function HabitTracker() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -33,42 +33,18 @@ export function HabitTracker() {
     setEditingHabit(undefined);
   };
 
-  const getViewModeButton = (
-    mode: "calendar" | "list" | "table" | "heatmap",
-    label: string,
-  ) => (
-    <Button
-      variant={viewMode === mode ? "default" : "secondary"}
-      onClick={() => setViewMode(mode)}
-    >
-      {label}
-    </Button>
-  );
-
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <h1 className="text-3xl font-bold text-gray-900">My Habits</h1>
-        <div className="flex flex-wrap gap-2">
-          {getViewModeButton("calendar", "Calendar")}
-          {getViewModeButton("heatmap", "Heatmap")}
-          {getViewModeButton("list", "List")}
-          {getViewModeButton("table", "Table")}
-          <Button onClick={handleAddHabit}>Add Habit</Button>
-        </div>
-      </div>
+      <Header
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        onAddHabit={handleAddHabit}
+      />
 
-      {/* Filter Panel - show for calendar and heatmap views */}
       {(viewMode === "calendar" || viewMode === "heatmap") && <FilterPanel />}
-
-      {/* Main Content */}
       {viewMode === "calendar" && <HabitCalendar />}
-
       {viewMode === "heatmap" && <HeatmapCalendar />}
-
       {viewMode === "list" && <HabitList onEditHabit={handleEditHabit} />}
-
       {viewMode === "table" && <HabitsTable />}
 
       {/* Habit Form Modal */}

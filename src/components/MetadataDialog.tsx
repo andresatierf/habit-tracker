@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { useStore } from "@/shared/store";
 
-import { api } from "../../../convex/_generated/api";
+import { api } from "../../convex/_generated/api";
 
 type MetadataField = {
   name: string;

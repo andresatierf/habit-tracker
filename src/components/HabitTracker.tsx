@@ -4,6 +4,7 @@ import { HabitCalendar } from "@/views/calendar/HabitCalendar";
 import { HeatmapCalendar } from "@/views/heatmap/HeatmapCalendar";
 import { HabitList } from "@/views/list/HabitList";
 import { HabitsTable } from "@/views/table/HabitsTable";
+import { DayView } from "@/views/day/DayView";
 
 import type { Id } from "../../convex/_generated/dataModel";
 
@@ -15,7 +16,7 @@ export function HabitTracker() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Id<"habits">>();
   const [viewMode, setViewMode] = useState<
-    "calendar" | "list" | "table" | "heatmap"
+    "calendar" | "list" | "table" | "heatmap" | "day"
   >("calendar");
 
   const handleAddHabit = () => {
@@ -46,6 +47,7 @@ export function HabitTracker() {
       {viewMode === "heatmap" && <HeatmapCalendar />}
       {viewMode === "list" && <HabitList onEditHabit={handleEditHabit} />}
       {viewMode === "table" && <HabitsTable />}
+      {viewMode === "day" && <DayView />}
 
       {/* Habit Form Modal */}
       <HabitForm

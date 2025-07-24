@@ -2,7 +2,7 @@ import { Button } from "./ui/button";
 
 export function Header({ viewMode, setViewMode, onAddHabit }) {
   const getViewModeButton = (
-    mode: "calendar" | "list" | "table" | "heatmap",
+    mode: "calendar" | "list" | "table" | "heatmap" | "day",
     label: string,
   ) => (
     <Button
@@ -21,6 +21,7 @@ export function Header({ viewMode, setViewMode, onAddHabit }) {
         {getViewModeButton("heatmap", "Heatmap")}
         {getViewModeButton("list", "List")}
         {getViewModeButton("table", "Table")}
+        {getViewModeButton("day", "Day")}
         <Button onClick={onAddHabit}>Add Habit</Button>
       </div>
     </div>

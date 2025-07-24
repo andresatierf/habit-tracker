@@ -99,6 +99,39 @@ export const getHabit = query({
   },
 });
 
+export const getHabitsByDate = query({
+  args: { date: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const habits = await ctx.db
+      .query("habits")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .filter((q) => q.eq(q.field("isActive"), true))
+      .collect();
+
+    const date = args.date.split("T")[0]; // YYYY-MM-DD
+
+    const habitsWithCompletion = await Promise.all(
+      habits.map(async (habit) => {
+        const completion = await ctx.db
+          .query("completions")
+          .withIndex("by_habit_and_date", (q) =>
+            q.eq("habitId", habit._id).eq("date", date),
+          )
+          .first();
+        return {
+          ...habit,
+          completed: completion?.completed ?? false,
+        };
+      }),
+    );
+
+    return habitsWithCompletion;
+  },
+});
+
 // Update a habit
 export const updateHabit = mutation({
   args: {

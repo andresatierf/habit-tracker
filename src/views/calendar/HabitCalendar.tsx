@@ -1,6 +1,6 @@
 import { CalendarGrid } from "./CalendarGrid";
 import { CalendarHeader } from "./CalendarHeader";
-import { MetadataDialog } from "./MetadataDialog";
+import { MetadataDialog } from "../../components/MetadataDialog";
 
 export function HabitCalendar() {
   return (

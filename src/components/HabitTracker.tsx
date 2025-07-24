@@ -1,23 +1,23 @@
 import { useState } from "react";
 
+import { ViewModes } from "@/shared/schema";
+import { ViewMode } from "@/shared/types";
 import { HabitCalendar } from "@/views/calendar/HabitCalendar";
+import { DayView } from "@/views/day/DayView";
 import { HeatmapCalendar } from "@/views/heatmap/HeatmapCalendar";
 import { HabitList } from "@/views/list/HabitList";
 import { HabitsTable } from "@/views/table/HabitsTable";
-import { DayView } from "@/views/day/DayView";
 
 import type { Id } from "../../convex/_generated/dataModel";
 
 import { FilterPanel } from "./FilterPanel";
-import { HabitForm } from "./HabitForm";
+import { HabitForm } from "./habit-form";
 import { Header } from "./Header";
 
 export function HabitTracker() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Id<"habits">>();
-  const [viewMode, setViewMode] = useState<
-    "calendar" | "list" | "table" | "heatmap" | "day"
-  >("calendar");
+  const [viewMode, setViewMode] = useState<ViewMode>(ViewModes.DAY);
 
   const handleAddHabit = () => {
     setEditingHabit(undefined);
@@ -42,12 +42,16 @@ export function HabitTracker() {
         onAddHabit={handleAddHabit}
       />
 
-      {(viewMode === "calendar" || viewMode === "heatmap") && <FilterPanel />}
-      {viewMode === "calendar" && <HabitCalendar />}
-      {viewMode === "heatmap" && <HeatmapCalendar />}
-      {viewMode === "list" && <HabitList onEditHabit={handleEditHabit} />}
-      {viewMode === "table" && <HabitsTable />}
-      {viewMode === "day" && <DayView />}
+      {(viewMode === ViewModes.MONTH || viewMode === ViewModes.HEATMAP) && (
+        <FilterPanel />
+      )}
+      {viewMode === ViewModes.DAY && <DayView />}
+      {viewMode === ViewModes.MONTH && <HabitCalendar />}
+      {viewMode === ViewModes.HEATMAP && <HeatmapCalendar />}
+      {viewMode === ViewModes.LIST && (
+        <HabitList onEditHabit={handleEditHabit} />
+      )}
+      {viewMode === ViewModes.TABLE && <HabitsTable />}
 
       {/* Habit Form Modal */}
       <HabitForm

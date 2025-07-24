@@ -87,12 +87,24 @@ export const toggleCompletion = mutation({
       await ctx.db.patch(existingCompletion._id, patchData);
     } else {
       // Create new completion
+      const habit = await ctx.db.get(args.habitId);
+      if (!habit) {
+        throw new Error("Habit not found");
+      }
+
+      const defaultMetadata: Record<string, any> = {};
+      habit.metadata?.forEach((metaField) => {
+        if (metaField.defaultValue !== undefined) {
+          defaultMetadata[metaField.name] = metaField.defaultValue;
+        }
+      });
+
       await ctx.db.insert("completions", {
         userId,
         habitId: args.habitId,
         date: args.date,
         completed: args.completed !== undefined ? args.completed : true,
-        metadata: args.metadata,
+        metadata: args.metadata !== undefined ? args.metadata : defaultMetadata,
       });
     }
   },

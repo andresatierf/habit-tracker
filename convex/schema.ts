@@ -14,6 +14,7 @@ const applicationTables = {
       name: v.string(),
       type: v.union(v.literal("text"), v.literal("number"), v.literal("boolean"), v.literal("date"), v.literal("enum")),
       options: v.optional(v.array(v.string())),
+      defaultValue: v.optional(v.any()),
     }))),
   }).index("by_user", ["userId"])
     .index("by_parent", ["parentId"]),

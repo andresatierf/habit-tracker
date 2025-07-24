@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { useMutation } from "convex/react";
 import _ from "lodash";
@@ -36,11 +36,7 @@ export function HabitCard({
 
   const toggleCompletion = useMutation(api.completions.toggleCompletion);
 
-  const handleToggle = async () => {
-    await toggleCompletion({ habitId: habit._id, date });
-  };
-
-  const onOpen = () => {
+  const onOpen = useCallback(() => {
     setCompletionMetadata({
       date,
       habitId: habit._id,
@@ -48,12 +44,37 @@ export function HabitCard({
       schema: habit.metadata || [],
       initial: completion?.metadata || [],
     });
-  };
+  }, [completion, date, habit, setCompletionMetadata]);
+
+  const handleOnClick = useCallback(async () => {
+    if (completion?.completed || false) {
+      await toggleCompletion({
+        date: date.toString(),
+        habitId: habit._id,
+        completed: false,
+        metadata: completion?.metadata,
+      });
+      return;
+    }
+
+    if (habit.metadata && habit.metadata.length > 0) {
+      onOpen();
+    } else {
+      await toggleCompletion({
+        date: date.toString(),
+        habitId: habit._id,
+        completed: true,
+      });
+    }
+  }, [completion, date, habit, onOpen, toggleCompletion]);
 
   return (
     <Card
-      className={cn("mb-4 flex flex-col justify-between", className, {
-        "bg-green-100": completion?.completed,
+      className={cn("mb-4 flex flex-col justify-between bg-red-50", className, {
+        "bg-green-50": completion?.completed,
+        "bg-yellow-50":
+          completion?.completed &&
+          Object.values(completion?.metadata || {}).some((m) => !m),
       })}
     >
       <CardHeader>
@@ -63,19 +84,19 @@ export function HabitCard({
       </CardHeader>
       <CardContent>
         {habit.metadata?.map((m) => (
-          <p className="flex w-full justify-between gap-4 ">
+          <div className="flex w-full justify-between gap-4 ">
             <span className="font-bold">{_.startCase(m.name)}</span>
-            <span>{completion?.metadata?.[m.name]}</span>
-          </p>
+            <span>{completion?.metadata?.[m.name] || m.defaultValue}</span>
+          </div>
         ))}
       </CardContent>
       <CardFooter className="flex justify-end gap-4">
-        {completion?.completed && (
+        {completion?.completed && !!habit.metadata?.length && (
           <Button variant="outline" onClick={onOpen}>
             Edit Metadata
           </Button>
         )}
-        <Button onClick={handleToggle}>
+        <Button onClick={() => handleOnClick()}>
           {completion?.completed ? "Mark as Incomplete" : "Mark as Complete"}
         </Button>
       </CardFooter>

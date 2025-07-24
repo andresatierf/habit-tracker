@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useQuery } from "convex/react";
 
-import { HabitForm } from "@/components/HabitForm";
+import { HabitForm } from "@/components/habit-form";
 
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";

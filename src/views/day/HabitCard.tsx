@@ -1,13 +1,14 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 import { useMutation } from "convex/react";
 import _ from "lodash";
+import { Settings } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useStore } from "@/shared/store";
 
 import { api } from "../../../convex/_generated/api";
-import { Doc } from "../../../convex/_generated/dataModel";
+import { Doc, Id } from "../../../convex/_generated/dataModel";
 import { Button } from "../../components/ui/button";
 import {
   Card,
@@ -22,6 +23,7 @@ interface HabitCardProps {
   habit: Doc<"habits">;
   completion?: Doc<"completions">;
   date: string;
+  onEditHabit: (habitId: Id<"habits">) => void;
 }
 
 export function HabitCard({
@@ -29,6 +31,7 @@ export function HabitCard({
   habit,
   completion,
   date,
+  onEditHabit,
 }: HabitCardProps) {
   const setCompletionMetadata = useStore(
     (state) => state.completion.setMetadata,
@@ -70,17 +73,29 @@ export function HabitCard({
 
   return (
     <Card
-      className={cn("mb-4 flex flex-col justify-between bg-red-50", className, {
-        "bg-green-50": completion?.completed,
-        "bg-yellow-50":
-          completion?.completed &&
-          Object.values(completion?.metadata || {}).some((m) => !m),
-      })}
+      className={cn(
+        "mb-4 flex flex-col justify-between bg-red-50 relative",
+        className,
+        {
+          "bg-green-50": completion?.completed,
+          "bg-yellow-50":
+            completion?.completed &&
+            Object.values(completion?.metadata || {}).some((m) => !m),
+        },
+      )}
     >
       <CardHeader>
         <CardTitle>
           {habit.icon} {habit.name}
         </CardTitle>
+        <Button
+          variant="outline"
+          size="icon"
+          className="absolute right-2 top-1"
+          onClick={() => onEditHabit(habit._id)}
+        >
+          <Settings className="size-4" />
+        </Button>
       </CardHeader>
       <CardContent>
         {habit.metadata?.map((m) => (

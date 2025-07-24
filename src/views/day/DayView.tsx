@@ -4,11 +4,16 @@ import { MetadataDialog } from "@/components/MetadataDialog";
 import { useStore } from "@/shared/store";
 
 import { api } from "../../../convex/_generated/api";
+import { Id } from "../../../convex/_generated/dataModel";
 
 import { DayHeader } from "./DayHeader";
 import { HabitCard } from "./HabitCard";
 
-export function DayView() {
+interface DayViewProps {
+  onEditHabit: (habitId: Id<"habits">) => void;
+}
+
+export function DayView({ onEditHabit }: DayViewProps) {
   const selectedDate = useStore((state) => state.calendar.date);
 
   const habits = useQuery(api.habits.getHabitsByDate, {
@@ -35,6 +40,7 @@ export function DayView() {
             completion={completions?.find((c) => c.habitId === habit._id)}
             date={selectedDate.toString()}
             className="flex-[40%]"
+            onEditHabit={onEditHabit}
           />
         ))}
       </div>

@@ -36,29 +36,26 @@ export function HabitTracker() {
 
   return (
     <div className="space-y-6">
+      <HabitForm
+        isOpen={isFormOpen}
+        habitId={editingHabit}
+        onClose={handleCloseForm}
+      />
       <Header
         viewMode={viewMode}
         setViewMode={setViewMode}
         onAddHabit={handleAddHabit}
       />
-
       {(viewMode === ViewModes.MONTH || viewMode === ViewModes.HEATMAP) && (
         <FilterPanel />
       )}
-      {viewMode === ViewModes.DAY && <DayView />}
+      {viewMode === ViewModes.DAY && <DayView onEditHabit={handleEditHabit} />}
       {viewMode === ViewModes.MONTH && <HabitCalendar />}
       {viewMode === ViewModes.HEATMAP && <HeatmapCalendar />}
       {viewMode === ViewModes.LIST && (
         <HabitList onEditHabit={handleEditHabit} />
       )}
       {viewMode === ViewModes.TABLE && <HabitsTable />}
-
-      {/* Habit Form Modal */}
-      <HabitForm
-        isOpen={isFormOpen}
-        habitId={editingHabit}
-        onClose={handleCloseForm}
-      />
     </div>
   );
 }

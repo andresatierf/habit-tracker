@@ -2,13 +2,14 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
 interface Props {
+  className: HTMLDivElement["className"];
   name: string;
   setName: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export function NameInput({ name, setName }: Props) {
+export function NameInput({ className, name, setName }: Props) {
   return (
-    <div>
+    <div className={className}>
       <Label htmlFor="habit-name">Habit Name</Label>
       <Input
         id="habit-name"

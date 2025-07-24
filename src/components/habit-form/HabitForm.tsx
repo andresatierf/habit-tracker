@@ -39,6 +39,7 @@ import { ColorInput } from "./ColorInput";
 import { IconInput } from "./IconInput";
 import { MetadataInput } from "./MetadataInput";
 import { NameInput } from "./NameInput";
+import { ParentInput } from "./ParentInput";
 
 interface HabitFormProps {
   habitId?: Id<"habits">;
@@ -95,6 +96,9 @@ export function HabitForm({
   const [icon, setIcon] = useState(ICONS[0]);
   const [metadataFields, setMetadataFields] = useState<MetadataField[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedParentId, setSelectedParentId] = useState<
+    Id<"habits"> | undefined
+  >(parentId);
 
   const createHabit = useMutation(api.habits.createHabit);
   const updateHabit = useMutation(api.habits.updateHabit);
@@ -105,8 +109,9 @@ export function HabitForm({
       setColor(habit?.color || COLORS[0]);
       setIcon(habit?.icon || ICONS[0]);
       setMetadataFields(habit?.metadata || []);
+      setSelectedParentId(habit?.parentId || parentId);
     }
-  }, [isOpen, habit]);
+  }, [isOpen, habit, parentId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,7 +126,7 @@ export function HabitForm({
           color,
           icon,
           metadata: metadataFields,
-          parentId,
+          parentId: selectedParentId,
         });
         toast.success(
           `${parentId ? "Sub-habit" : "Habit"} updated successfully!`,
@@ -132,7 +137,7 @@ export function HabitForm({
           color,
           icon,
           metadata: metadataFields,
-          parentId,
+          parentId: selectedParentId,
         });
         toast.success(
           `${parentId ? "Sub-habit" : "Habit"} created successfully!`,
@@ -154,16 +159,21 @@ export function HabitForm({
             {habit ? "Edit Habit" : `Create New ${parentId ? "Sub " : ""}Habit`}
           </DialogTitle>
         </DialogHeader>
-
         <form onSubmit={handleSubmit} className="space-y-4">
-          <NameInput name={name} setName={setName} />
+          <div className="flex gap-2">
+            <NameInput className="flex-[60%]" name={name} setName={setName} />
+            <ParentInput
+              className="flex-[40%]"
+              parentId={selectedParentId}
+              setParentId={setSelectedParentId}
+            />
+          </div>
           <ColorInput color={color} setColor={setColor} />
           <IconInput icon={icon} setIcon={setIcon} />
           <MetadataInput
             metadataFields={metadataFields}
             setMetadataFields={setMetadataFields}
           />
-
           {/* Preview */}
           <div className="rounded-md bg-gray-50 p-3">
             <div className="flex items-center gap-3">
@@ -175,7 +185,6 @@ export function HabitForm({
               <span className="font-medium">{name || "Habit Name"}</span>
             </div>
           </div>
-
           <DialogFooter>
             <Button
               type="button"

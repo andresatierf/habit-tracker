@@ -25,6 +25,8 @@ import { useStore } from "@/shared/store";
 
 import { api } from "../../convex/_generated/api";
 
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+
 type MetadataField = {
   name: string;
   type: "text" | "number" | "boolean" | "date" | "enum";
@@ -40,7 +42,7 @@ export function MetadataDialog() {
   const toggleCompletion = useMutation(api.completions.toggleCompletion);
 
   const form = useForm({
-    defaultValues: {},
+    defaultValues: completionMetadata?.initial,
     onSubmit: async ({ value }) => {
       await onSave(value);
       setCompletionMetadata(null);
@@ -67,6 +69,13 @@ export function MetadataDialog() {
         }
         if (fieldSchema.type === "date" && !value) {
           return "Please select a date";
+        }
+        if (
+          fieldSchema.type === "boolean" &&
+          value !== true &&
+          value !== false
+        ) {
+          return "Please select a value";
         }
         return undefined;
       },
@@ -100,10 +109,10 @@ export function MetadataDialog() {
           <DialogTitle>Add/Edit Metadata</DialogTitle>
         </DialogHeader>
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            form.handleSubmit();
+            await form.handleSubmit();
           }}
         >
           <div className="space-y-4 py-4">
@@ -123,7 +132,6 @@ export function MetadataDialog() {
                     meta: { errors },
                   },
                   handleChange,
-                  handleBlur,
                 }) => {
                   return (
                     <div key={name}>
@@ -132,43 +140,61 @@ export function MetadataDialog() {
                         <Input
                           id={name}
                           type="text"
-                          value={value || ""}
+                          value={value as string}
                           onChange={(e) => handleChange(e.target.value)}
-                          onBlur={handleBlur}
                         />
                       )}
                       {fieldSchema.type === "number" && (
                         <Input
                           id={name}
                           type="number"
-                          value={value || 0}
+                          value={value as number}
                           onChange={(e) =>
                             handleChange(parseFloat(e.target.value))
                           }
-                          onBlur={handleBlur}
                         />
                       )}
                       {fieldSchema.type === "boolean" && (
-                        <input
-                          id={name}
-                          type="checkbox"
-                          checked={value || false}
-                          onChange={(e) => handleChange(e.target.checked)}
-                          onBlur={handleBlur}
-                        />
+                        <RadioGroup
+                          className="mt-2 flex gap-16"
+                          value={
+                            value === true
+                              ? "true"
+                              : value === false
+                                ? "false"
+                                : undefined
+                          }
+                          onValueChange={(value) =>
+                            handleChange(
+                              value === "true"
+                                ? true
+                                : value === "false"
+                                  ? false
+                                  : undefined,
+                            )
+                          }
+                        >
+                          <div className="flex gap-2">
+                            <RadioGroupItem id="radio-true" value="true" />
+                            <Label htmlFor="radio-true">True</Label>
+                          </div>
+                          <div className="flex gap-2">
+                            <RadioGroupItem id="radio-false" value="false" />
+                            <Label htmlFor="radio-false">False</Label>
+                          </div>
+                        </RadioGroup>
                       )}
                       {fieldSchema.type === "date" && (
                         <Input
                           id={name}
                           type="date"
-                          value={value || ""}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
+                          value={value as string}
+                          onChange={(e) => handleChange(e.target.value)}
                         />
                       )}
                       {fieldSchema.type === "enum" && (
                         <Select
-                          value={value || ""}
+                          value={value as string}
                           onValueChange={handleChange}
                         >
                           <SelectTrigger className="w-full">
@@ -195,19 +221,29 @@ export function MetadataDialog() {
             ))}
           </div>
           <DialogFooter>
-            {form.state.meta?.errors && form.state.meta.errors.length > 0 && (
-              <div className="mt-2 text-sm text-destructive">
-                {form.state.meta.errors.map((error, index) => (
-                  <p key={index}>{error}</p>
-                ))}
-              </div>
-            )}
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button
+                variant="outline"
+                onClick={() => setCompletionMetadata(null)}
+              >
+                Cancel
+              </Button>
             </DialogClose>
-            <Button type="submit" disabled={!form.state.isValid}>
-              Save
-            </Button>
+            <form.Subscribe
+              selector={({ canSubmit, isSubmitting }) => [
+                canSubmit,
+                isSubmitting,
+              ]}
+              children={([canSubmit, isSubmitting]) => (
+                <Button
+                  type="submit"
+                  disabled={!canSubmit || isSubmitting}
+                  loading={isSubmitting}
+                >
+                  {isSubmitting ? "Saving..." : "Save"}
+                </Button>
+              )}
+            />
           </DialogFooter>
         </form>
       </DialogContent>

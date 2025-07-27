@@ -12,7 +12,7 @@ interface HabitCardProps {
   onToggleExpanded: (habitId: Id<"habits">) => void;
   onAdd: (habitId: Id<"habits">) => void;
   onEdit: (habitId: Id<"habits">) => void;
-  isSubHabit?: boolean; // New prop
+  isSubHabit?: boolean;
 }
 
 export function HabitCard({
@@ -21,7 +21,7 @@ export function HabitCard({
   onToggleExpanded,
   onAdd,
   onEdit,
-  isSubHabit = false, // Default to false
+  isSubHabit = false,
 }: HabitCardProps) {
   const subHabits =
     useQuery(api.habits.getSubHabits, { parentId: habit._id }) || [];
@@ -34,7 +34,7 @@ export function HabitCard({
     },
   );
 
-  const onDelete = async (habitId) => {
+  const onDelete = async (habitId: Id<"habits">) => {
     if (
       confirm(
         "Are you sure you want to delete this habit? This will also delete all sub-habits.",
@@ -121,8 +121,6 @@ export function HabitCard({
           </div>
         </div>
       </div>
-
-      {/* Sub-habits */}
       {isExpanded && subHabits.length > 0 && (
         <div className="mt-2 space-y-2 pb-2 pl-8 pr-2">
           {subHabits.map((subHabit) => (
@@ -132,7 +130,6 @@ export function HabitCard({
               onToggleExpanded={onToggleExpanded}
               onAdd={onAdd}
               onEdit={onEdit}
-              onDelete={onDelete}
               isExpanded={isExpanded}
               isSubHabit={true}
             />

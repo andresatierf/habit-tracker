@@ -71,16 +71,27 @@ export function HabitCard({
     }
   }, [completion, date, habit, onOpen, toggleCompletion]);
 
+  const evalCompletion = useCallback(() => {
+    return Object.values(
+      _.merge(
+        {},
+        completion?.metadata,
+        habit.metadata?.reduce(
+          (acc, m) => ({ ...acc, [m.name]: undefined }),
+          {},
+        ),
+      ),
+    ).some((m) => m === null || m === undefined || m === "");
+  }, [completion, habit]);
+
   return (
     <Card
       className={cn(
-        "mb-4 flex flex-col justify-between bg-red-50 relative",
+        "flex flex-col justify-between bg-red-50 relative",
         className,
         {
           "bg-green-50": completion?.completed,
-          "bg-yellow-50":
-            completion?.completed &&
-            Object.values(completion?.metadata || {}).some((m) => !m),
+          "bg-yellow-50": completion?.completed && evalCompletion(),
         },
       )}
     >
@@ -101,7 +112,7 @@ export function HabitCard({
         {habit.metadata?.map((m) => (
           <div className="flex w-full justify-between gap-4 ">
             <span className="font-bold">{_.startCase(m.name)}</span>
-            <span>{completion?.metadata?.[m.name] || m.defaultValue}</span>
+            <span>{completion?.metadata?.[m.name]}</span>
           </div>
         ))}
       </CardContent>

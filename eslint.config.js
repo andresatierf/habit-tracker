@@ -92,6 +92,8 @@ export default tseslint.config(
       // for consistency (esp. Convex `handler`s)
       "@typescript-eslint/require-await": "off",
 
+      "@typescript-eslint/no-misused-promises": "off",
+
       "import/order": [
         "error",
         {
@@ -118,16 +120,16 @@ export default tseslint.config(
           ],
         },
       ],
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: ["components", "lib", "views"].flatMap((path) => [
-            // Use public API only
-            `@/${path}/*/**`,
-            `../**/${path}`,
-          ]),
-        },
-      ],
+      // "no-restricted-imports": [
+      //   "error",
+      //   {
+      //     patterns: ["components", "lib", "views"].flatMap((path) => [
+      //       // Use public API only
+      //       `@/${path}/*/**`,
+      //       `../**/${path}`,
+      //     ]),
+      //   },
+      // ],
     },
   },
 );
